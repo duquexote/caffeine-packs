@@ -1,0 +1,1840 @@
+[
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:612",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Vanilla Latte",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:613",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Vanilla Latte",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:614",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Vanilla Latte",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:615",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Vanilla Latte",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:616",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:617",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:618",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Chocolate",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:619",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Chocolate",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:620",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Original",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:621",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Original",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:622",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Original",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:623",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Original",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:624",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Choconilla",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:625",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Choconilla",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:626",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Choconilla",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:627",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Choconilla",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:628",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Paçoca",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:629",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Paçoca",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:630",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Paçoca",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:631",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Paçoca",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:632",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Beijinho",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:633",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Beijinho",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:634",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Beijinho",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:635",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Beijinho",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:636",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Pistache",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:637",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Pistache",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:638",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Pistache",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:639",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Pistache",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:640",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Chocolate Língua de Gato",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:641",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Chocolate Língua de Gato",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:642",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Chocolate Língua de Gato",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:643",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Chocolate Língua de Gato",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:644",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Doce de Leite",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:645",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Doce de Leite",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:646",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Doce de Leite",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:647",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Doce de Leite",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:648",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Chocolate Lajotinha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:649",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Chocolate Lajotinha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:650",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Chocolate Lajotinha",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:651",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Chocolate Lajotinha",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:652",
+    "props": {
+      "Tamanho": "380g",
+      "Sabor": "Creme de Avelã",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:653",
+    "props": {
+      "Tamanho": "220g",
+      "Sabor": "Creme de Avelã",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:654",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Choconilla",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:655",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Original",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:656",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Vanilla Latte",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:657",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:658",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Beijinho",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:659",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Pistache",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:660",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Chocolate Língua de Gato",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:661",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Doce de Leite",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:662",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Chocolate Lajotinha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:663",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Choconilla",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:664",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Original",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:665",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Vanilla Latte",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:666",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Beijinho",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:667",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Pistache",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:668",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Chocolate Língua de Gato",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:669",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Doce de Leite",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:670",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Chocolate Lajotinha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:671",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Chocolate Lajotinha Sampling",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:672",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:673",
+    "props": {
+      "Tamanho": "PPB",
+      "Sabor": "Choconilla",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:674",
+    "props": {
+      "Tamanho": "PPB",
+      "Sabor": "Vanilla Latte",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee",
+    "kind": "produto",
+    "setId": "204:611",
+    "nodeId": "204:675",
+    "props": {
+      "Tamanho": "PPB",
+      "Sabor": "Beijinho",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "2:20",
+    "props": {
+      "Sabor": "Tangerina",
+      "Posição": "Frontal",
+      "Tamanho": "Classic"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:2",
+    "props": {
+      "Sabor": "Limão",
+      "Posição": "Frontal",
+      "Tamanho": "Classic"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:6",
+    "props": {
+      "Sabor": "Melancia",
+      "Posição": "Frontal",
+      "Tamanho": "Classic"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:10",
+    "props": {
+      "Sabor": "Limão",
+      "Posição": "Verso",
+      "Tamanho": "Classic"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:14",
+    "props": {
+      "Sabor": "Tangerina",
+      "Posição": "Verso",
+      "Tamanho": "Classic"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:18",
+    "props": {
+      "Sabor": "Melancia",
+      "Posição": "Verso",
+      "Tamanho": "Classic"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:22",
+    "props": {
+      "Sabor": "Limão",
+      "Posição": "Frontal",
+      "Tamanho": "Travel Size"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:26",
+    "props": {
+      "Sabor": "Tangerina",
+      "Posição": "Frontal",
+      "Tamanho": "Travel Size"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:30",
+    "props": {
+      "Sabor": "Melancia",
+      "Posição": "Frontal",
+      "Tamanho": "Travel Size"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:34",
+    "props": {
+      "Sabor": "Limão",
+      "Posição": "Frontal",
+      "Tamanho": "Sachê"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:38",
+    "props": {
+      "Sabor": "Tangerina",
+      "Posição": "Frontal",
+      "Tamanho": "Sachê"
+    }
+  },
+  {
+    "line": "Morning Shot",
+    "kind": "produto",
+    "setId": "2:19",
+    "nodeId": "5:42",
+    "props": {
+      "Sabor": "Melancia",
+      "Posição": "Frontal",
+      "Tamanho": "Sachê"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "2:43",
+    "props": {
+      "Tamanho": "264g",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:94",
+    "props": {
+      "Tamanho": "456g",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:98",
+    "props": {
+      "Tamanho": "456g",
+      "Sabor": "Morango",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:102",
+    "props": {
+      "Tamanho": "264g",
+      "Sabor": "Morango",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:106",
+    "props": {
+      "Tamanho": "456g",
+      "Sabor": "Baunilha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:110",
+    "props": {
+      "Tamanho": "264g",
+      "Sabor": "Baunilha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:114",
+    "props": {
+      "Tamanho": "456g",
+      "Sabor": "Chocolate",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:118",
+    "props": {
+      "Tamanho": "264g",
+      "Sabor": "Chocolate",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:122",
+    "props": {
+      "Tamanho": "456g",
+      "Sabor": "Morango",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:126",
+    "props": {
+      "Tamanho": "264g",
+      "Sabor": "Morango",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:130",
+    "props": {
+      "Tamanho": "456g",
+      "Sabor": "Baunilha",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:134",
+    "props": {
+      "Tamanho": "264g",
+      "Sabor": "Baunilha",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:138",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:142",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Morango",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:146",
+    "props": {
+      "Tamanho": "To go",
+      "Sabor": "Baunilha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:150",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:154",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Morango",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:158",
+    "props": {
+      "Tamanho": "Sachê",
+      "Sabor": "Baunilha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Koala",
+    "kind": "produto",
+    "setId": "2:42",
+    "nodeId": "3:162",
+    "props": {
+      "Tamanho": "60g",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee Protein+",
+    "kind": "produto",
+    "setId": "6:799",
+    "nodeId": "6:800",
+    "props": {
+      "Tamanho": "465g",
+      "Sabor": "Caramel Macchiato",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee Protein+",
+    "kind": "produto",
+    "setId": "6:799",
+    "nodeId": "6:801",
+    "props": {
+      "Tamanho": "465g",
+      "Sabor": "Caramel Macchiato",
+      "Posição": "Lado"
+    }
+  },
+  {
+    "line": "SuperCoffee Protein+",
+    "kind": "produto",
+    "setId": "6:799",
+    "nodeId": "6:802",
+    "props": {
+      "Tamanho": "465g",
+      "Sabor": "Caramel Macchiato",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "SuperCoffee Protein+",
+    "kind": "produto",
+    "setId": "6:799",
+    "nodeId": "6:803",
+    "props": {
+      "Tamanho": "465g",
+      "Sabor": "Iced Cappuccino",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "SuperCoffee Protein+",
+    "kind": "produto",
+    "setId": "6:799",
+    "nodeId": "6:804",
+    "props": {
+      "Tamanho": "465g",
+      "Sabor": "Iced Cappuccino",
+      "Posição": "Lado"
+    }
+  },
+  {
+    "line": "SuperCoffee Protein+",
+    "kind": "produto",
+    "setId": "6:799",
+    "nodeId": "6:805",
+    "props": {
+      "Tamanho": "465g",
+      "Sabor": "Iced Cappuccino",
+      "Posição": "Verso"
+    }
+  },
+  {
+    "line": "Caffeine Labs",
+    "kind": "produto",
+    "setId": "14:927",
+    "nodeId": "14:928",
+    "props": {
+      "Produto": "Creatina",
+      "Sabor": "Sem sabor",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Caffeine Labs",
+    "kind": "produto",
+    "setId": "14:927",
+    "nodeId": "14:929",
+    "props": {
+      "Produto": "Whey Protein",
+      "Sabor": "Chocolate",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Caffeine Labs",
+    "kind": "produto",
+    "setId": "14:927",
+    "nodeId": "14:930",
+    "props": {
+      "Produto": "Whey Protein",
+      "Sabor": "Baunilha",
+      "Posição": "Frontal"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2256",
+    "props": {
+      "Objeto": "Necessaire",
+      "Modelo": "Be Ready",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2257",
+    "props": {
+      "Objeto": "Caffeine Army",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2258",
+    "props": {
+      "Objeto": "Multipack",
+      "Modelo": "Smart Life",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2259",
+    "props": {
+      "Objeto": "Necessaire",
+      "Modelo": "GRUPO",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2260",
+    "props": {
+      "Objeto": "Necessaire",
+      "Modelo": "Summer 2026",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2261",
+    "props": {
+      "Objeto": "Necessaire",
+      "Modelo": "Protein+",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2262",
+    "props": {
+      "Objeto": "Necessaire",
+      "Modelo": "Protein+",
+      "Position": "Side"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2263",
+    "props": {
+      "Objeto": "Mala",
+      "Modelo": "SDC",
+      "Position": "Front"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2264",
+    "props": {
+      "Objeto": "Mala",
+      "Modelo": "SDC",
+      "Position": "Side"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2265",
+    "props": {
+      "Objeto": "Bolsa",
+      "Modelo": "Protein+",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2266",
+    "props": {
+      "Objeto": "Ecobag",
+      "Modelo": "Summer 2025",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2267",
+    "props": {
+      "Objeto": "Ecobag",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2268",
+    "props": {
+      "Objeto": "Ecobag",
+      "Modelo": "Summer 2026",
+      "Position": "Up"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2269",
+    "props": {
+      "Objeto": "Ecobag",
+      "Modelo": "Summer 2026",
+      "Position": "Down"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2270",
+    "props": {
+      "Objeto": "Viseira",
+      "Modelo": "Be Unstoppable",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2271",
+    "props": {
+      "Objeto": "Viseira",
+      "Modelo": "Summer 2026",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2272",
+    "props": {
+      "Objeto": "Boné",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2273",
+    "props": {
+      "Objeto": "Boné",
+      "Modelo": "Living Smart",
+      "Position": "Front"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2274",
+    "props": {
+      "Objeto": "Boné",
+      "Modelo": "Living Smart",
+      "Position": "Side"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2275",
+    "props": {
+      "Objeto": "Casaco",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2276",
+    "props": {
+      "Objeto": "Multipack",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2277",
+    "props": {
+      "Objeto": "Multipack",
+      "Modelo": "Be Unstoppable",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2278",
+    "props": {
+      "Objeto": "Multipack",
+      "Modelo": "Protein+",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2279",
+    "props": {
+      "Objeto": "Multipack",
+      "Modelo": "Be Unstoppable",
+      "Position": "Up"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2280",
+    "props": {
+      "Objeto": "Caneca",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2281",
+    "props": {
+      "Objeto": "Multipack",
+      "Modelo": "Enjoy the journey",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2282",
+    "props": {
+      "Objeto": "Caneca",
+      "Modelo": "Starterpack",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2283",
+    "props": {
+      "Objeto": "Caneca",
+      "Modelo": "Starterpack",
+      "Position": "Side"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2284",
+    "props": {
+      "Objeto": "Caneca",
+      "Modelo": "Prime Week",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2285",
+    "props": {
+      "Objeto": "Caneca",
+      "Modelo": "SDC",
+      "Position": "Front"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2286",
+    "props": {
+      "Objeto": "Caneca",
+      "Modelo": "SDC",
+      "Position": "Back"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2287",
+    "props": {
+      "Objeto": "Copo Termico",
+      "Modelo": "Black Friday 2024",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2288",
+    "props": {
+      "Objeto": "Copo Termico",
+      "Modelo": "Black Friday 2025",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2289",
+    "props": {
+      "Objeto": "Coqueteleira",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2290",
+    "props": {
+      "Objeto": "Prime",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2291",
+    "props": {
+      "Objeto": "Copo",
+      "Modelo": "ProductPic",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2292",
+    "props": {
+      "Objeto": "Garrafa",
+      "Modelo": "Vidro",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2293",
+    "props": {
+      "Objeto": "Copo",
+      "Modelo": "Vidro",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2294",
+    "props": {
+      "Objeto": "Copo",
+      "Modelo": "Vidro",
+      "Position": "Full"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2295",
+    "props": {
+      "Objeto": "Creme",
+      "Modelo": "Dia das Mães",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2296",
+    "props": {
+      "Objeto": "Mixer",
+      "Modelo": "Starterpack",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2297",
+    "props": {
+      "Objeto": "Mixer",
+      "Modelo": "GRUPO",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2298",
+    "props": {
+      "Objeto": "Mixer",
+      "Modelo": "Prime Week",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2299",
+    "props": {
+      "Objeto": "Mixer",
+      "Modelo": "Prime Week",
+      "Position": "Front"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2300",
+    "props": {
+      "Objeto": "Mixer",
+      "Modelo": "Prime Week",
+      "Position": "Placed"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2301",
+    "props": {
+      "Objeto": "Sachês",
+      "Modelo": "Starterpack",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2302",
+    "props": {
+      "Objeto": "Sachês",
+      "Modelo": "Always On",
+      "Position": "Open"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2303",
+    "props": {
+      "Objeto": "Sachês",
+      "Modelo": "Always On",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2304",
+    "props": {
+      "Objeto": "Sachês",
+      "Modelo": "Caffeine Labs",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2305",
+    "props": {
+      "Objeto": "Sachês",
+      "Modelo": "Lajotinha",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2306",
+    "props": {
+      "Objeto": "Samplings",
+      "Modelo": "Lajotinha",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2307",
+    "props": {
+      "Objeto": "Kopenhagen",
+      "Modelo": "Mini-lajotinha",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2308",
+    "props": {
+      "Objeto": "Haoma",
+      "Modelo": "Biscottino",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2309",
+    "props": {
+      "Objeto": "Natal",
+      "Modelo": "Caixa",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2310",
+    "props": {
+      "Objeto": "Natal",
+      "Modelo": "Cartão",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2311",
+    "props": {
+      "Objeto": "Haoma",
+      "Modelo": "Bombom",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2312",
+    "props": {
+      "Objeto": "Haoma",
+      "Modelo": "Chocolate Caramelizado",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2313",
+    "props": {
+      "Objeto": "Caneca",
+      "Modelo": "Semana do Cliente",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2314",
+    "props": {
+      "Objeto": "Mixer",
+      "Modelo": "Semana do Cliente",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2315",
+    "props": {
+      "Objeto": "Necessaire",
+      "Modelo": "Semana do Cliente",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "177:2316",
+    "props": {
+      "Objeto": "Bolsa",
+      "Modelo": "Semana do Cliente",
+      "Position": "Default"
+    }
+  },
+  {
+    "line": "Brinde",
+    "kind": "brinde",
+    "setId": "177:2255",
+    "nodeId": "204:237",
+    "props": {
+      "Objeto": "Sachês",
+      "Modelo": "Always On Leque",
+      "Position": "Default"
+    },
+    "scale": 4
+  },
+  {
+    "line": "Brinde Caffeine Labs",
+    "kind": "brinde",
+    "setId": "6:276",
+    "nodeId": "6:277",
+    "props": {
+      "Objeto": "Coqueteleira",
+      "Modelo": "Caffeine Labs",
+      "Position": "Default"
+    }
+  }
+]

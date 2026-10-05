@@ -1,0 +1,8 @@
+node_modules
+dist
+figma/raw
+figma/leque
+figma/urls-*.txt
+.env
+preview
+*.tsbuildinfo
