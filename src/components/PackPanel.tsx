@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Asset, ItemAdjust, Pack } from '../types';
-import { FORMATS, DEFAULT_ADJUST } from '../layout';
+import type { Asset, ItemAdjust, Pack, PackLayout } from '../types';
+import { FORMATS, DEFAULT_ADJUST, DEFAULT_LAYOUT } from '../layout';
 import { PROP_LABEL, batchSiblings, optionsFor, propKeys, slugify, switchVariant } from '../catalog';
 import type { Prefs } from '../storage';
 
@@ -13,6 +13,8 @@ interface Props {
   onReplace: (uid: string, asset: Asset) => void;
   onMove: (uid: string, dir: -1 | 1) => void;
   onRemove: (uid: string) => void;
+  onDuplicate: (uid: string) => void;
+  onLayout: (patch: Partial<PackLayout>) => void;
   onAdjust: (uid: string, adj: ItemAdjust, push: boolean) => void;
   onCheckpoint: () => void;
   onLayer: (uid: string, dir: -1 | 1) => void;
@@ -38,9 +40,45 @@ export function PackPanel(p: Props) {
   const slug = slugify(p.pack.name) || 'pack';
   const chosenFormats = FORMATS.filter((f) => p.prefs.formats.includes(f.id));
 
+  const layout = { ...DEFAULT_LAYOUT, ...p.pack.layout };
+  const twoRows = layout.rows === 2 || (layout.rows === 'auto' && products.length >= 6);
+  const backCount = twoRows ? Math.ceil(products.length / 2) : products.length;
+
+  /** Onde a lata fica na montagem, para orientar a ordem da lista. */
+  const productHint = (i: number) => {
+    const inBack = i < backCount;
+    const n = inBack ? backCount : products.length - backCount;
+    const j = inBack ? i : i - backCount;
+    const front = layout.depth === 'esquerda' ? j === 0 : j === n - 1;
+    const row = twoRows ? (inBack ? 'fileira de trás · ' : 'fileira da frente · ') : '';
+    return row + (front ? 'lata da frente' : `${j + 1}ª da esquerda`);
+  };
+
   const renderGroup = (title: string, list: typeof products) => (
     <div className="pack-group">
       <h4>{title} <span className="muted">({list.length})</span></h4>
+      {title === 'Produtos' && list.length > 1 && (
+        <div className="layout-opts">
+          <label>
+            <span>Lata da frente</span>
+            <div className="segmented">
+              <button className={layout.depth === 'esquerda' ? 'active' : ''} onClick={() => p.onLayout({ depth: 'esquerda' })}
+                title="Maior lata à esquerda, as outras atrás (banners de campanha)">Esquerda</button>
+              <button className={layout.depth === 'direita' ? 'active' : ''} onClick={() => p.onLayout({ depth: 'direita' })}
+                title="Latas crescendo até os brindes (kits Black Friday)">Junto aos brindes</button>
+            </div>
+          </label>
+          <label>
+            <span>Fileiras</span>
+            <div className="segmented">
+              {(['auto', 1, 2] as const).map((r) => (
+                <button key={r} className={layout.rows === r ? 'active' : ''} onClick={() => p.onLayout({ rows: r })}
+                  title={r === 'auto' ? 'Duas fileiras a partir de 6 produtos' : undefined}>{r === 'auto' ? 'Auto' : r}</button>
+              ))}
+            </div>
+          </label>
+        </div>
+      )}
       {!list.length && <p className="muted small">Nenhum. Clique no catálogo para adicionar.</p>}
       {list.map((it, i) => {
         const a = p.assets.get(it.assetId)!;
@@ -51,11 +89,12 @@ export function PackPanel(p: Props) {
               <img src={a.thumb} alt="" />
               <div className="pack-item-title">
                 <strong>{a.custom ? a.label : a.kind === 'produto' ? a.line : a.props.Objeto}</strong>
-                {title === 'Produtos' && <span className="muted small">{i === 0 ? 'na frente' : `${i + 1}º · atrás`}</span>}
+                {title === 'Produtos' && list.length > 1 && <span className="muted small">{productHint(i)}</span>}
               </div>
               <div className="pack-item-actions" onClick={(e) => e.stopPropagation()}>
                 <button className="icon-btn" title="Mover para a esquerda" disabled={i === 0} onClick={() => p.onMove(it.uid, -1)}>←</button>
                 <button className="icon-btn" title="Mover para a direita" disabled={i === list.length - 1} onClick={() => p.onMove(it.uid, 1)}>→</button>
+                <button className="icon-btn" title="Duplicar (mais uma unidade)" onClick={() => p.onDuplicate(it.uid)}>⧉</button>
                 <button className="icon-btn danger" title="Remover" onClick={() => p.onRemove(it.uid)}>×</button>
               </div>
             </div>

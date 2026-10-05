@@ -13,19 +13,24 @@ const catalog = JSON.parse(readFileSync(join(root, 'src/data/catalog.json'), 'ut
 const assets = new Map(catalog.map((a) => [a.id, a]));
 const byNode = (n) => catalog.find((a) => a.nodeId === n).id;
 
+// [nós do Figma, opções de montagem]
 const packs = {
-  'set-1': ['204:640', '177:2314'],
-  'set-2': ['204:640', '204:648', '204:237', '177:2313', '177:2314'],
-  'set-3': ['204:640', '2:20', '204:237', '177:2313', '177:2314'],
-  'set-4': ['204:640', '2:43', '204:237', '177:2313', '177:2314'],
-  'set-6': ['204:640', '14:929', '204:237', '177:2313', '177:2314'],
-  'prm-2': ['204:636', '204:653', '177:2313', '177:2314'],
-  'tres-produtos': ['204:640', '2:43', '2:20', '204:237', '177:2313', '177:2314'],
+  'set-1': [['204:640', '177:2314']],
+  'set-2': [['204:640', '204:648', '204:237', '177:2313', '177:2314']],
+  'set-4': [['204:640', '2:43', '204:237', '177:2313', '177:2314']],
+  'prm-2': [['204:636', '204:653', '177:2313', '177:2314']],
+  'tres-produtos': [['204:640', '2:43', '2:20', '204:237', '177:2313', '177:2314']],
+  // kits do DS Army UI (Black Friday / Summer)
+  'bf-5-latas': [['204:644', '204:612', '204:624', '204:640', '204:648', '177:2288', '177:2300'], { depth: 'direita' }],
+  'bf-7-latas': [['204:640', '204:644', '204:648', '204:624', '204:620', '204:632', '204:612', '177:2288', '177:2300'], { depth: 'direita' }],
+  'bf-7-latas-esq': [['204:640', '204:644', '204:648', '204:624', '204:620', '204:632', '204:612', '177:2288', '177:2300'], { depth: 'esquerda' }],
+  'summer-grupo': [['2:20', '2:43', '204:640', '177:2268', '177:2271'], { depth: 'direita' }],
+  'summer-sc': [['204:640', '177:2271']],
 };
 
 const SCALE = 3;
-for (const [name, nodes] of Object.entries(packs)) {
-  const pack = { id: name, name, items: nodes.map((n, i) => ({ uid: 'u' + i, assetId: byNode(n) })), adjust: {}, formatAdjust: {}, updatedAt: 0 };
+for (const [name, [nodes, layout]] of Object.entries(packs)) {
+  const pack = { id: name, name, items: nodes.map((n, i) => ({ uid: 'u' + i, assetId: byNode(n) })), adjust: {}, formatAdjust: {}, layout, updatedAt: 0 };
   for (const f of FORMATS.slice(0, 2)) {
     const { placements } = layoutPack(pack, assets, f);
     const W = f.width * SCALE, H = f.height * SCALE;

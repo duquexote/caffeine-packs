@@ -221,6 +221,9 @@ img { display: block; }
 .panel-scroll { overflow: auto; padding: 14px; display: flex; flex-direction: column; gap: 18px; }
 .pack-group { display: flex; flex-direction: column; gap: 8px; }
 .pack-group p { margin: 0; }
+.layout-opts { display: flex; flex-wrap: wrap; gap: 10px 14px; padding: 2px 0 4px; }
+.layout-opts label { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--muted); }
+.layout-opts .segmented button { padding: 4px 10px; font-size: 12px; }
 .pack-item {
   border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; background: #fff; cursor: pointer;
   display: flex; flex-direction: column; gap: 8px;

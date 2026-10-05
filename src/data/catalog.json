@@ -155,13 +155,13 @@
   "thumb": "assets/thumbs/supercoffee-220g-chocolate-frontal.webp",
   "aspect": 1,
   "crop": [
-   0.2025,
+   0.20313,
    0.12,
    0.79875,
    0.8825
   ],
   "bbox": [
-   0.20375,
+   0.20438,
    0.12125,
    0.7975,
    0.88125
@@ -267,13 +267,13 @@
   "thumb": "assets/thumbs/supercoffee-220g-original-frontal.webp",
   "aspect": 1,
   "crop": [
-   0.2025,
+   0.20313,
    0.12,
    0.79875,
    0.8825
   ],
   "bbox": [
-   0.20375,
+   0.20438,
    0.12125,
    0.7975,
    0.88125
@@ -351,13 +351,13 @@
   "thumb": "assets/thumbs/supercoffee-220g-choconilla-frontal.webp",
   "aspect": 1,
   "crop": [
-   0.2025,
+   0.20313,
    0.12,
    0.79875,
    0.8825
   ],
   "bbox": [
-   0.20375,
+   0.20438,
    0.12125,
    0.7975,
    0.88125
@@ -435,13 +435,13 @@
   "thumb": "assets/thumbs/supercoffee-220g-pacoca-frontal.webp",
   "aspect": 1,
   "crop": [
-   0.2025,
+   0.20313,
    0.12,
    0.79875,
    0.8825
   ],
   "bbox": [
-   0.20375,
+   0.20438,
    0.12125,
    0.7975,
    0.88125
@@ -1194,13 +1194,13 @@
    0.34687,
    0.11937,
    0.64438,
-   0.76438
+   0.76375
   ],
   "bbox": [
    0.34813,
    0.12062,
    0.64312,
-   0.76313
+   0.7625
   ]
  },
  {
@@ -1250,13 +1250,13 @@
    0.34687,
    0.11937,
    0.64438,
-   0.76438
+   0.76375
   ],
   "bbox": [
    0.34813,
    0.12062,
    0.64312,
-   0.76313
+   0.7625
   ]
  },
  {
@@ -1698,13 +1698,13 @@
    0.24375,
    0.13219,
    0.75625,
-   0.90375
+   0.90312
   ],
   "bbox": [
    0.24438,
    0.13281,
    0.75562,
-   0.90312
+   0.9025
   ]
  },
  {
@@ -1726,13 +1726,13 @@
    0.24281,
    0.13125,
    0.75719,
-   0.90531
+   0.90469
   ],
   "bbox": [
    0.24344,
    0.13187,
    0.75656,
-   0.90469
+   0.90406
   ]
  },
  {
@@ -1754,13 +1754,13 @@
    0.24438,
    0.13437,
    0.75562,
-   0.90406
+   0.90344
   ],
   "bbox": [
    0.245,
    0.135,
    0.755,
-   0.90344
+   0.90281
   ]
  },
  {
@@ -1779,13 +1779,13 @@
   "thumb": "assets/thumbs/morning-shot-limao-verso-classic.webp",
   "aspect": 1,
   "crop": [
-   0.2375,
+   0.23781,
    0.13062,
    0.76313,
    0.90469
   ],
   "bbox": [
-   0.23813,
+   0.23844,
    0.13125,
    0.7625,
    0.90406
@@ -1807,13 +1807,13 @@
   "thumb": "assets/thumbs/morning-shot-tangerina-verso-classic.webp",
   "aspect": 1,
   "crop": [
-   0.2375,
+   0.23781,
    0.13062,
    0.76313,
    0.90469
   ],
   "bbox": [
-   0.23813,
+   0.23844,
    0.13125,
    0.7625,
    0.90406
@@ -2380,6 +2380,118 @@
   ]
  },
  {
+  "id": "brinde-necessaire-summer-2026-default",
+  "nodeId": "177:2260",
+  "line": "Brinde",
+  "kind": "brinde",
+  "type": "bolsa",
+  "props": {
+   "Objeto": "Necessaire",
+   "Modelo": "Summer 2026",
+   "Position": "Default"
+  },
+  "label": "Necessaire Summer 2026",
+  "src": "assets/items/brinde-necessaire-summer-2026-default.webp",
+  "thumb": "assets/thumbs/brinde-necessaire-summer-2026-default.webp",
+  "aspect": 1,
+  "crop": [
+   0.1775,
+   0.23688,
+   0.82937,
+   0.73687
+  ],
+  "bbox": [
+   0.17875,
+   0.23813,
+   0.82813,
+   0.73562
+  ]
+ },
+ {
+  "id": "brinde-mala-sdc-front",
+  "nodeId": "177:2263",
+  "line": "Brinde",
+  "kind": "brinde",
+  "type": "bolsa",
+  "props": {
+   "Objeto": "Mala",
+   "Modelo": "SDC",
+   "Position": "Front"
+  },
+  "label": "Mala SDC · Front",
+  "src": "assets/items/brinde-mala-sdc-front.webp",
+  "thumb": "assets/thumbs/brinde-mala-sdc-front.webp",
+  "aspect": 1,
+  "crop": [
+   0.10812,
+   0.33813,
+   0.88,
+   0.70063
+  ],
+  "bbox": [
+   0.10938,
+   0.33937,
+   0.87875,
+   0.69937
+  ]
+ },
+ {
+  "id": "brinde-ecobag-summer-2026-up",
+  "nodeId": "177:2268",
+  "line": "Brinde",
+  "kind": "brinde",
+  "type": "bolsa",
+  "props": {
+   "Objeto": "Ecobag",
+   "Modelo": "Summer 2026",
+   "Position": "Up"
+  },
+  "label": "Ecobag Summer 2026 · Up",
+  "src": "assets/items/brinde-ecobag-summer-2026-up.webp",
+  "thumb": "assets/thumbs/brinde-ecobag-summer-2026-up.webp",
+  "aspect": 1,
+  "crop": [
+   0.0925,
+   0.03188,
+   0.90125,
+   0.96875
+  ],
+  "bbox": [
+   0.09375,
+   0.03313,
+   0.9,
+   0.9675
+  ]
+ },
+ {
+  "id": "brinde-viseira-summer-2026-default",
+  "nodeId": "177:2271",
+  "line": "Brinde",
+  "kind": "brinde",
+  "type": "chapeu",
+  "props": {
+   "Objeto": "Viseira",
+   "Modelo": "Summer 2026",
+   "Position": "Default"
+  },
+  "label": "Viseira Summer 2026",
+  "src": "assets/items/brinde-viseira-summer-2026-default.webp",
+  "thumb": "assets/thumbs/brinde-viseira-summer-2026-default.webp",
+  "aspect": 1,
+  "crop": [
+   0.02375,
+   0.28125,
+   0.94,
+   0.72688
+  ],
+  "bbox": [
+   0.025,
+   0.2825,
+   0.93875,
+   0.72562
+  ]
+ },
+ {
   "id": "brinde-caneca-starterpack-default",
   "nodeId": "177:2282",
   "line": "Brinde",
@@ -2564,14 +2676,14 @@
   "aspect": 1,
   "crop": [
    0.30062,
-   0,
-   1,
+   0.27,
+   0.7125,
    0.835
   ],
   "bbox": [
    0.30188,
-   0,
-   1,
+   0.27125,
+   0.71125,
    0.83375
   ]
  },
@@ -2619,13 +2731,13 @@
   "thumb": "assets/thumbs/brinde-copo-vidro-default.webp",
   "aspect": 1,
   "crop": [
-   0.33187,
+   0.3325,
    0.0375,
    0.69875,
    0.9125
   ],
   "bbox": [
-   0.33313,
+   0.33375,
    0.03875,
    0.6975,
    0.91125
@@ -2649,14 +2761,14 @@
   "crop": [
    0.3175,
    0.03938,
-   0.67563,
-   0.90687
+   0.675,
+   0.90625
   ],
   "bbox": [
    0.31875,
    0.04063,
-   0.67437,
-   0.90563
+   0.67375,
+   0.905
   ]
  },
  {
@@ -2818,13 +2930,13 @@
    0.28687,
    0.11563,
    0.70875,
-   0.87813
+   0.8775
   ],
   "bbox": [
    0.28813,
    0.11688,
    0.7075,
-   0.87687
+   0.87625
   ]
  },
  {
@@ -2957,13 +3069,13 @@
   "crop": [
    0.05312,
    0.1625,
-   0.94688,
+   0.94625,
    0.865
   ],
   "bbox": [
    0.05437,
    0.16375,
-   0.94563,
+   0.945,
    0.86375
   ]
  },
@@ -3056,7 +3168,7 @@
   "nodeId": "177:2315",
   "line": "Brinde",
   "kind": "brinde",
-  "type": "acessorio",
+  "type": "bolsa",
   "props": {
    "Objeto": "Necessaire",
    "Modelo": "Semana do Cliente",
@@ -3084,7 +3196,7 @@
   "nodeId": "177:2316",
   "line": "Brinde",
   "kind": "brinde",
-  "type": "acessorio",
+  "type": "bolsa",
   "props": {
    "Objeto": "Bolsa",
    "Modelo": "Semana do Cliente",
@@ -3123,13 +3235,13 @@
   "thumb": "assets/thumbs/brinde-saches-always-on-leque-default.webp",
   "aspect": 1.12865,
   "crop": [
-   0.15664,
+   0.15734,
    0.18785,
    0.85664,
    0.8532
   ],
   "bbox": [
-   0.15804,
+   0.15874,
    0.18942,
    0.85524,
    0.85162

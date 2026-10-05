@@ -1,6 +1,17 @@
 export type ItemType =
   | 'pote' | 'togo' | 'sache'
-  | 'leque' | 'saches' | 'caneca' | 'mixer' | 'copo' | 'acessorio' | 'outro';
+  | 'leque' | 'saches' | 'caneca' | 'mixer' | 'copo' | 'bolsa' | 'chapeu'
+  /** tipo antigo (uploads feitos antes da separação em bolsa/chapeu) */
+  | 'acessorio'
+  | 'outro';
+
+/** Como os produtos são montados (ver layout.ts). */
+export interface PackLayout {
+  /** lado da lata que fica na frente: 'esquerda' (banners de campanha) ou 'direita' (junto dos brindes) */
+  depth: 'esquerda' | 'direita';
+  /** fileiras de produtos; 'auto' usa 2 a partir de 6 produtos */
+  rows: 'auto' | 1 | 2;
+}
 
 export type Rect4 = [number, number, number, number];
 
@@ -53,6 +64,8 @@ export interface Pack {
   items: PackItem[];
   adjust: Record<string, ItemAdjust>;
   formatAdjust: Record<string, FormatAdjust>;
+  /** opcional para manter compatibilidade com packs salvos antes */
+  layout?: PackLayout;
   updatedAt: number;
 }
 

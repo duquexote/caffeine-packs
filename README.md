@@ -24,7 +24,11 @@ Tudo roda no navegador; não há servidor nem login. Packs salvos, tamanhos padr
 2. **Ajuste fino (canvas):** clique para selecionar, arraste para mover, use Ctrl + roda do mouse para redimensionar.
    Arrastar o fundo reposiciona o conjunto só naquele formato. Os ajustes de item valem para todos os formatos.
 3. **Pack (direita):** troque sabor/tamanho/modelo pelos seletores (o item mantém a posição), reordene com ← →,
-   gire, espelhe e mude a camada. **Salvar tamanho como padrão** passa a valer para todos os sabores daquele produto.
+   duplique (⧉) para kits com várias latas, gire, espelhe e mude a camada. **Salvar tamanho como padrão** passa a
+   valer para todos os sabores daquele produto.
+   - **Lata da frente:** *Esquerda* (padrão dos banners de campanha) ou *Junto aos brindes* (latas crescendo até os
+     brindes, como nos kits Black Friday do DS Army UI). Produtos ficam sempre à esquerda e brindes à direita.
+   - **Fileiras:** *Auto* usa duas fileiras a partir de 6 produtos (a de trás mais alta, a da frente mais baixa).
 4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270), fundo, resolução (1x–4x) e
    qualidade. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`).
 5. **Variações em lote:** selecione um item e abra *Gerar variações deste item em lote*. Sai um .zip com o pack em
@@ -43,7 +47,7 @@ sachês dos packs Always On.
 - `figma/raw/`: PNGs 1600×1600 exportados do Figma (fora do git).
 - `npm run catalog`: recorta, converte para WebP e gera `public/assets/` + `src/data/catalog.json`.
 
-**Situação atual:** 113 itens no catálogo. 46 variantes ainda não foram baixadas (estão em `figma/missing.json`, junto
+**Situação atual:** 117 itens no catálogo. 42 variantes ainda não foram baixadas (estão em `figma/missing.json`, junto
 com as 8 vazias citadas abaixo): alguns tamanhos de Koala e Morning Shot, Protein+ de lado/verso e brindes menos usados
 (bonés, ecobags, multipacks, Haoma, Natal etc.).
 Para completar:

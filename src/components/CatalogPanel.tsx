@@ -22,7 +22,8 @@ const UPLOAD_TYPES: { value: ItemType; label: string }[] = [
   { value: 'mixer', label: 'Mixer (em pé, fino)' },
   { value: 'copo', label: 'Copo / garrafa' },
   { value: 'leque', label: 'Leque de sachês' },
-  { value: 'acessorio', label: 'Bolsa / necessaire / boné' },
+  { value: 'bolsa', label: 'Bolsa / ecobag / necessaire' },
+  { value: 'chapeu', label: 'Viseira / boné (vai na frente)' },
   { value: 'outro', label: 'Outro' },
 ];
 

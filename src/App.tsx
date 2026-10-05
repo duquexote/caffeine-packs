@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Asset, Format, FormatAdjust, ItemAdjust, ItemType, Pack } from './types';
+import type { Asset, Format, FormatAdjust, ItemAdjust, ItemType, Pack, PackLayout } from './types';
 import { BUILTIN_ASSETS, shapeKey, slugify, variantSlug } from './catalog';
-import { DEFAULT_ADJUST, FORMATS, defaultVisualHeight, giftOrder, layoutPack } from './layout';
+import { DEFAULT_ADJUST, DEFAULT_LAYOUT, FORMATS, defaultVisualHeight, giftOrder, layoutPack } from './layout';
 import { downloadBlob, renderPackBlob, zipFiles } from './render';
 import {
   addUpload, loadCurrent, loadPacks, loadPrefs, loadSizes, loadUploads, removeUpload,
@@ -60,15 +60,17 @@ export default function App() {
     update((p) => {
       const items = [...p.items];
       if (asset.kind === 'produto') {
-        // como no Figma: o maior produto fica na frente (à esquerda); os menores vão para trás
+        // como no Figma: o maior produto fica na frente (à esquerda, ou à direita junto aos brindes);
+        // os menores vão para trás
         const size = (a: Asset) => defaultVisualHeight(a) * sizeOverride(a);
+        const frontRight = p.layout?.depth === 'direita';
         let idx = -1;
         let last = -1;
         items.forEach((it, i) => {
           const a = assetMap.get(it.assetId);
           if (a?.kind !== 'produto') return;
           last = i;
-          if (idx < 0 && size(a) < size(asset)) idx = i;
+          if (idx < 0 && (frontRight ? size(a) > size(asset) : size(a) < size(asset))) idx = i;
         });
         items.splice(idx >= 0 ? idx : last + 1, 0, item);
       } else {
@@ -83,6 +85,33 @@ export default function App() {
     });
     setSelected(item.uid);
   };
+
+  /** Mais uma unidade do mesmo item, logo ao lado (kits com várias latas). */
+  const duplicateItem = (itemUid: string) => {
+    const copy = { uid: uid(), assetId: '' };
+    update((p) => {
+      const i = p.items.findIndex((it) => it.uid === itemUid);
+      if (i < 0) return p;
+      copy.assetId = p.items[i].assetId;
+      const items = [...p.items];
+      items.splice(i + 1, 0, copy);
+      return { ...p, items };
+    });
+    setSelected(copy.uid);
+  };
+
+  /** Ao trocar o lado da lata da frente, espelha a ordem dos produtos para a mesma lata continuar na frente. */
+  const setLayout = (patch: Partial<PackLayout>) => update((p) => {
+    const cur = { ...DEFAULT_LAYOUT, ...p.layout };
+    let items = p.items;
+    if (patch.depth && patch.depth !== cur.depth) {
+      const isProduct = (assetId: string) => assetMap.get(assetId)?.kind === 'produto';
+      const reversed = items.filter((it) => isProduct(it.assetId)).reverse();
+      let k = 0;
+      items = items.map((it) => (isProduct(it.assetId) ? reversed[k++] : it));
+    }
+    return { ...p, items, layout: { ...cur, ...patch } };
+  });
 
   const replaceAsset = (itemUid: string, asset: Asset) =>
     update((p) => ({ ...p, items: p.items.map((it) => (it.uid === itemUid ? { ...it, assetId: asset.id } : it)) }));
@@ -368,6 +397,8 @@ export default function App() {
         onReplace={replaceAsset}
         onMove={moveItem}
         onRemove={removeItem}
+        onDuplicate={duplicateItem}
+        onLayout={setLayout}
         onAdjust={adjustItem}
         onCheckpoint={checkpoint}
         onLayer={layer}
