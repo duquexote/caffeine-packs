@@ -1,12 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
 import type { Asset, ItemType } from '../types';
 import { PRODUCT_LINES } from '../catalog';
+import { DEFAULT_UPLOAD_GROUP } from '../storage';
 
 interface Props {
   assets: Asset[];
   inPack: Set<string>;
   onAdd: (a: Asset) => void;
-  onUpload: (file: File, label: string, kind: 'produto' | 'brinde', type: ItemType) => Promise<void>;
+  onUpload: (file: File, label: string, kind: 'produto' | 'brinde', type: ItemType, category: string) => Promise<void>;
   onRemoveUpload: (a: Asset) => void;
 }
 
@@ -38,30 +39,28 @@ export function CatalogPanel({ assets, inPack, onAdd, onUpload, onRemoveUpload }
 
   const chips = useMemo(() => {
     if (tab === 'produto') {
-      const lines = PRODUCT_LINES.filter((l) => ofTab.some((a) => a.line === l));
-      if (ofTab.some((a) => a.custom)) lines.push('Meus uploads');
+      // uploads podem criar uma linha nova: vai depois das do Figma
+      const lines = [...new Set([...PRODUCT_LINES, ...ofTab.map((a) => a.line)])].filter((l) => ofTab.some((a) => a.line === l));
       return ['Todos', ...lines];
     }
-    const objs = [...new Set(ofTab.filter((a) => !a.custom).map((a) => a.props.Objeto))].sort((x, y) => x.localeCompare(y, 'pt'));
-    if (ofTab.some((a) => a.custom)) objs.push('Meus uploads');
+    const objs = [...new Set(ofTab.map((a) => a.props.Objeto))].sort((x, y) => x.localeCompare(y, 'pt'));
     return ['Todos', ...objs];
   }, [ofTab, tab]);
+
+  /** Tipo dos brindes do Figma com esse objeto, para já vir escolhido no upload. */
+  const giftType = (objeto: string) =>
+    tab === 'brinde' ? ofTab.find((a) => !a.custom && a.props.Objeto === objeto)?.type : undefined;
 
   const groups = useMemo(() => {
     const q = norm(query.trim());
     const list = ofTab.filter((a) => {
       if (!showBacks && isBack(a)) return false;
-      if (filter !== 'Todos') {
-        if (filter === 'Meus uploads') { if (!a.custom) return false; }
-        else if (tab === 'produto' ? a.line !== filter : a.props.Objeto !== filter) return false;
-      }
+      if (filter !== 'Todos' && (tab === 'produto' ? a.line !== filter : a.props.Objeto !== filter)) return false;
       return !q || norm(a.label).includes(q);
     });
     const map = new Map<string, Asset[]>();
     for (const a of list) {
-      const g = a.custom ? 'Meus uploads'
-        : tab === 'produto' ? `${a.line} ${a.props.Produto ?? a.props.Tamanho ?? ''}`.trim()
-        : a.props.Objeto;
+      const g = tab === 'produto' ? `${a.line} ${a.props.Produto ?? a.props.Tamanho ?? ''}`.trim() : a.props.Objeto;
       if (!map.has(g)) map.set(g, []);
       map.get(g)!.push(a);
     }
@@ -101,11 +100,12 @@ export function CatalogPanel({ assets, inPack, onAdd, onUpload, onRemoveUpload }
             <div className="grid">
               {list.map((a) => (
                 <button key={a.id} className={'card' + (inPack.has(a.id) ? ' in-pack' : '')} onClick={() => onAdd(a)} title={`Adicionar ${a.label}`}>
-                  <img src={a.thumb} alt="" loading="lazy" />
+                  {/* mesmo modo CORS do canvas, para o cache da miniatura servir à exportação */}
+                  <img src={a.thumb} alt="" loading="lazy" crossOrigin="anonymous" />
                   <span>{cardTitle(a)}</span>
                   {a.custom && (
-                    <span className="card-remove" role="button" title="Remover upload"
-                      onClick={(e) => { e.stopPropagation(); if (confirm(`Remover "${a.label}" dos uploads?`)) onRemoveUpload(a); }}>×</span>
+                    <span className="card-remove" role="button" title="Remover upload (para todo o time)"
+                      onClick={(e) => { e.stopPropagation(); if (confirm(`Remover "${a.label}"? Ele some do catálogo de todo o time.`)) onRemoveUpload(a); }}>×</span>
                   )}
                 </button>
               ))}
@@ -114,19 +114,35 @@ export function CatalogPanel({ assets, inPack, onAdd, onUpload, onRemoveUpload }
         ))}
         {!groups.length && <p className="muted pad">Nada encontrado.</p>}
       </div>
-      <UploadBox tab={tab} file={uploading} setFile={setUploading} onUpload={onUpload} />
+      <UploadBox tab={tab} file={uploading} setFile={setUploading} onUpload={onUpload}
+        groups={chips.slice(1)} initialGroup={filter !== 'Todos' ? filter : tab === 'produto' ? PRODUCT_LINES[0] : ''}
+        typeOf={giftType} />
     </aside>
   );
 }
 
-function UploadBox({ tab, file, setFile, onUpload }: {
+function UploadBox({ tab, file, setFile, onUpload, groups, initialGroup, typeOf }: {
   tab: Tab; file: File | null; setFile: (f: File | null) => void;
   onUpload: Props['onUpload'];
+  /** objetos (brindes) ou linhas (produtos) já existentes, sugeridos no campo de grupo */
+  groups: string[];
+  initialGroup: string;
+  typeOf: (group: string) => ItemType | undefined;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [label, setLabel] = useState('');
+  const [group, setGroup] = useState('');
   const [type, setType] = useState<ItemType>(tab === 'produto' ? 'pote' : 'outro');
   const [busy, setBusy] = useState(false);
+
+  /** "caneca" entra no grupo "Caneca" que já existe, em vez de criar outro */
+  const existing = (g: string) => groups.find((x) => norm(x) === norm(g.trim()));
+  const pickGroup = (g: string) => {
+    setGroup(g);
+    const match = existing(g);
+    const t = match && typeOf(match);
+    if (t) setType(t);
+  };
 
   if (!file) {
     return (
@@ -134,7 +150,12 @@ function UploadBox({ tab, file, setFile, onUpload }: {
         <input ref={inputRef} type="file" accept="image/png,image/webp" hidden
           onChange={(e) => {
             const f = e.target.files?.[0];
-            if (f) { setFile(f); setLabel(f.name.replace(/\.[^.]+$/, '')); setType(tab === 'produto' ? 'pote' : 'outro'); }
+            if (f) {
+              setFile(f);
+              setLabel(f.name.replace(/\.[^.]+$/, ''));
+              setType(tab === 'produto' ? 'pote' : 'outro');
+              pickGroup(initialGroup);
+            }
             e.target.value = '';
           }} />
         <button className="btn ghost full" onClick={() => inputRef.current?.click()}>+ Enviar PNG próprio</button>
@@ -145,16 +166,27 @@ function UploadBox({ tab, file, setFile, onUpload }: {
     <form className="upload form" onSubmit={async (e) => {
       e.preventDefault();
       setBusy(true);
-      try { await onUpload(file, label || file.name, tab, type); setFile(null); } finally { setBusy(false); }
+      try {
+        await onUpload(file, label || file.name, tab, type, existing(group) ?? (group.trim() || DEFAULT_UPLOAD_GROUP));
+        setFile(null);
+      }
+      catch { /* erro já avisado; o formulário fica aberto para tentar de novo */ }
+      finally { setBusy(false); }
     }}>
-      <p className="muted small">PNG com fundo transparente. Fica salvo neste navegador.</p>
+      <p className="muted small">PNG com fundo transparente. Entra no catálogo de todo o time.</p>
       <input className="search" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Nome" />
+      <input className="search" list="upload-groups" value={group} onChange={(e) => pickGroup(e.target.value)}
+        placeholder={tab === 'produto' ? 'Linha (ex.: SuperCoffee)' : 'Objeto (ex.: Caneca, Garrafa)'}
+        title="Escolha um grupo existente ou digite um novo" />
+      <datalist id="upload-groups">
+        {groups.map((g) => <option key={g} value={g} />)}
+      </datalist>
       <select value={type} onChange={(e) => setType(e.target.value as ItemType)}>
         {UPLOAD_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
       </select>
       <div className="row">
         <button type="button" className="btn ghost" onClick={() => setFile(null)}>Cancelar</button>
-        <button className="btn" disabled={busy}>Adicionar como {tab === 'produto' ? 'produto' : 'brinde'}</button>
+        <button className="btn" disabled={busy}>{busy ? 'Enviando…' : `Adicionar como ${tab === 'produto' ? 'produto' : 'brinde'}`}</button>
       </div>
     </form>
   );

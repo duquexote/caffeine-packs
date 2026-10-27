@@ -4,7 +4,7 @@ import { BUILTIN_ASSETS, shapeKey, slugify, variantSlug } from './catalog';
 import { DEFAULT_ADJUST, DEFAULT_LAYOUT, FORMATS, defaultVisualHeight, giftOrder, layoutPack } from './layout';
 import { downloadBlob, renderPackBlob, zipFiles } from './render';
 import {
-  addUpload, loadCurrent, loadPacks, loadPrefs, loadSizes, loadUploads, removeUpload,
+  addUpload, deleteSavedPack, deleteSize, loadCurrent, loadPacks, loadPrefs, loadSizes, loadUploads, removeUpload,
   saveCurrent, savePacks, savePrefs, saveSizes, type Prefs,
 } from './storage';
 import { usePackHistory } from './usePackHistory';
@@ -35,14 +35,22 @@ export default function App() {
 
   const { pack, update, checkpoint, replace, undo, redo, canUndo, canRedo } = usePackHistory(() => loadCurrent() ?? examplePack());
   const [selected, setSelected] = useState<string | null>(null);
-  const [saved, setSaved] = useState<Pack[]>(loadPacks);
+  const [saved, setSaved] = useState<Pack[]>([]);
   const [prefs, setPrefsState] = useState<Prefs>(loadPrefs);
-  const [sizes, setSizes] = useState<Record<string, number>>(loadSizes);
+  const [sizes, setSizes] = useState<Record<string, number>>({});
   const [exporting, setExporting] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; error?: boolean } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => { loadUploads().then(setUploads); }, []);
+  /** Aviso para falhas do Supabase (uso: `.catch(warn('...'))`). */
+  const warn = (msg: string) => () => setToast({ msg, error: true });
+
+  // uploads, packs salvos e tamanhos padrão são do time inteiro (Supabase)
+  useEffect(() => {
+    loadUploads().then(setUploads).catch(warn('Não foi possível carregar os uploads do time (Supabase)'));
+    loadPacks().then(setSaved).catch(warn('Não foi possível carregar os packs salvos (Supabase)'));
+    loadSizes().then(setSizes).catch(warn('Não foi possível carregar os tamanhos padrão (Supabase)'));
+  }, []);
   useEffect(() => { saveCurrent(pack); }, [pack]);
   useEffect(() => {
     if (!toast) return;
@@ -163,35 +171,44 @@ export default function App() {
     if (!it || !a) return;
     const adj = pack.adjust[itemUid] ?? DEFAULT_ADJUST;
     const key = shapeKey(a);
-    const next = { ...sizes, [key]: (sizes[key] ?? 1) * adj.scale };
-    setSizes(next);
-    saveSizes(next);
+    const value = (sizes[key] ?? 1) * adj.scale;
+    setSizes({ ...sizes, [key]: value });
+    saveSizes({ [key]: value }).catch(warn('Não foi possível salvar o tamanho padrão'));
     adjustItem(itemUid, { ...adj, scale: 1 }, true);
-    setToast({ msg: `Tamanho padrão salvo para ${a.kind === 'produto' ? `${a.line} ${a.props.Tamanho ?? a.props.Produto ?? ''}` : a.label}` });
+    setToast({ msg: `Tamanho padrão salvo para ${a.kind === 'produto' && !a.custom ? `${a.line} ${a.props.Tamanho ?? a.props.Produto ?? ''}` : a.label}` });
   };
   const resetDefaultSize = (a: Asset) => {
     const next = { ...sizes };
     delete next[shapeKey(a)];
     setSizes(next);
-    saveSizes(next);
+    deleteSize(shapeKey(a)).catch(warn('Não foi possível restaurar o tamanho padrão'));
   };
 
   // ---- packs salvos ----
 
   const savedVersion = saved.find((s) => s.id === pack.id);
   const isSaved = !!savedVersion && savedVersion.updatedAt === pack.updatedAt;
-  const savePack = () => {
-    const next = [pack, ...saved.filter((s) => s.id !== pack.id)];
-    setSaved(next);
-    savePacks(next);
-    setToast({ msg: `Pack "${pack.name}" salvo` });
+  const savePack = async () => {
+    const p = pack;
+    try {
+      await savePacks([p]);
+      setSaved((s) => [p, ...s.filter((x) => x.id !== p.id)]);
+      setToast({ msg: `Pack "${p.name}" salvo para o time` });
+    } catch {
+      setToast({ msg: `Não foi possível salvar "${p.name}"`, error: true });
+    }
+  };
+  const toggleMenu = () => {
+    // ao abrir, busca os packs que o time salvou desde que a página carregou
+    if (!menuOpen) loadPacks().then(setSaved).catch(warn('Não foi possível atualizar os packs salvos'));
+    setMenuOpen(!menuOpen);
   };
   const openPack = (p: Pack) => { replace(p); setSelected(null); setMenuOpen(false); };
   const deletePack = (p: Pack) => {
-    if (!confirm(`Excluir o pack "${p.name}"?`)) return;
-    const next = saved.filter((s) => s.id !== p.id);
-    setSaved(next);
-    savePacks(next);
+    if (!confirm(`Excluir o pack "${p.name}"? Ele some para todo o time.`)) return;
+    deleteSavedPack(p.id)
+      .then(() => setSaved((s) => s.filter((x) => x.id !== p.id)))
+      .catch(warn(`Não foi possível excluir "${p.name}"`));
   };
   const duplicatePack = () => {
     replace({ ...pack, id: uid(), name: pack.name + '-copia', updatedAt: Date.now() });
@@ -203,17 +220,25 @@ export default function App() {
   };
   const importInput = useRef<HTMLInputElement>(null);
   const importJson = async (file: File) => {
+    let data: { packs?: Pack[]; sizes?: Record<string, number> };
     try {
-      const data = JSON.parse(await file.text()) as { packs?: Pack[]; sizes?: Record<string, number> };
-      const incoming = data.packs ?? [];
-      const merged = [...incoming, ...saved.filter((s) => !incoming.some((p) => p.id === s.id))];
-      setSaved(merged);
-      savePacks(merged);
-      if (data.sizes) { const ns = { ...sizes, ...data.sizes }; setSizes(ns); saveSizes(ns); }
-      setToast({ msg: `${incoming.length} pack(s) importado(s)` });
+      data = JSON.parse(await file.text());
     } catch {
       setToast({ msg: 'Arquivo inválido', error: true });
+      return;
     }
+    const incoming = data.packs ?? [];
+    const importedSizes = data.sizes;
+    try {
+      if (incoming.length) await savePacks(incoming);
+      if (importedSizes) await saveSizes(importedSizes);
+    } catch {
+      setToast({ msg: 'Não foi possível importar para o Supabase', error: true });
+      return;
+    }
+    setSaved((s) => [...incoming, ...s.filter((x) => !incoming.some((p) => p.id === x.id))]);
+    if (importedSizes) setSizes((s) => ({ ...s, ...importedSizes }));
+    setToast({ msg: `${incoming.length} pack(s) importado(s) para o time` });
   };
 
   // ---- exportação ----
@@ -324,7 +349,7 @@ export default function App() {
           <button className="btn ghost" onClick={duplicatePack}>Duplicar</button>
           <button className="btn" onClick={savePack} title="Ctrl+S">Salvar</button>
           <div className="menu-wrap">
-            <button className="btn ghost" onClick={() => setMenuOpen(!menuOpen)}>Meus packs ({saved.length}) ▾</button>
+            <button className="btn ghost" onClick={toggleMenu}>Packs salvos ({saved.length}) ▾</button>
             {menuOpen && (
               <div className="menu" onMouseLeave={() => setMenuOpen(false)}>
                 {!saved.length && <p className="muted small pad">Nenhum pack salvo ainda.</p>}
@@ -353,12 +378,19 @@ export default function App() {
         assets={allAssets}
         inPack={inPack}
         onAdd={addAsset}
-        onUpload={async (file: File, label: string, kind: 'produto' | 'brinde', type: ItemType) => {
-          const a = await addUpload(file, label, kind, type);
-          setUploads((u) => [...u, a]);
-          addAsset(a);
+        onUpload={async (file: File, label: string, kind: 'produto' | 'brinde', type: ItemType, category: string) => {
+          try {
+            const a = await addUpload(file, label, kind, type, category);
+            setUploads((u) => [...u, a]);
+            addAsset(a);
+          } catch (e) {
+            setToast({ msg: 'Falha ao enviar: ' + (e instanceof Error ? e.message : 'erro desconhecido'), error: true });
+            throw e;
+          }
         }}
-        onRemoveUpload={(a) => { removeUpload(a.id); setUploads((u) => u.filter((x) => x.id !== a.id)); }}
+        onRemoveUpload={(a) => removeUpload(a.id)
+          .then(() => setUploads((u) => u.filter((x) => x.id !== a.id)))
+          .catch(() => setToast({ msg: `Não foi possível remover "${a.label}"`, error: true }))}
       />
 
       <main className="stage" onClick={(e) => { if (e.target === e.currentTarget) setSelected(null); }}>

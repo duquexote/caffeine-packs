@@ -38,7 +38,8 @@ function productOverlap(n: number) {
 /** Altura visível padrão de cada item (SuperCoffee 380g de frente = 124). */
 export function defaultVisualHeight(a: Asset): number {
   const p = a.props;
-  switch (a.line) {
+  // uploads não têm Tamanho: mesmo na linha de um produto, o tamanho vem do tipo
+  if (!a.custom) switch (a.line) {
     case 'SuperCoffee':
       if (p.Tamanho === '220g') return 105;
       if (p.Tamanho === 'PPB') return 120;

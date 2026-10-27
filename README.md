@@ -13,8 +13,17 @@ npm run dev        # abre em http://localhost:5173
 Deploy: importe o repositório na Vercel. As configurações já estão em `vercel.json` (Vite, `npm ci`,
 `npm run build`, saída em `dist`; Node ≥ 22.12). Não há variáveis de ambiente.
 
-Tudo roda no navegador; não há servidor nem login. Packs salvos, tamanhos padrão e PNGs enviados ficam no navegador
-(localStorage/IndexedDB). Use **Meus packs → Exportar .json** para levar os packs para outro computador.
+Não há servidor próprio nem login. O que é do time inteiro fica no Supabase (SQL em `supabase/schema.sql`; URL e chave
+pública em `src/storage.ts`):
+
+- **Packs salvos** (tabela `packs`): **Salvar** deixa o pack disponível para todo mundo em **Packs salvos**;
+  excluir remove para todos.
+- **Tamanhos padrão** (tabela `pack_sizes`): **Salvar tamanho como padrão** vale para o time inteiro.
+- **PNGs enviados** (tabela `pack_uploads` + bucket público `pack-uploads`): entram no catálogo normal, no objeto
+  (brindes) ou na linha (produtos) escolhidos no envio.
+
+O que estava salvo só no navegador antes da integração sobe sozinho na primeira abertura. O pack em edição e as
+preferências de exportação continuam no navegador de cada um. **Packs salvos → Exportar .json** serve de backup.
 
 ## Como usar
 
@@ -57,7 +66,8 @@ FIGMA_TOKEN=seu_token npm run sync:figma   # token: Figma > Settings > Security 
 npm run catalog
 ```
 
-Também dá para enviar qualquer PNG transparente pelo botão **+ Enviar PNG próprio** no catálogo.
+Também dá para enviar qualquer PNG transparente pelo botão **+ Enviar PNG próprio** no catálogo (fica disponível
+para todo o time).
 
 Variantes que estão vazias no próprio Figma (220g Verso de Original/Choconilla/Paçoca/Beijinho, Caneca ProductPic,
 Coqueteleira ProductPic, Copo ProductPic, Necessaire Be Ready) são ignoradas automaticamente.

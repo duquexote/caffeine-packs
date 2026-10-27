@@ -16,6 +16,8 @@ export function getImage(src: string): HTMLImageElement {
   let img = images.get(src);
   if (!img) {
     img = new Image();
+    // uploads do time vêm do Supabase: sem CORS o canvas fica "sujo" e não exporta
+    img.crossOrigin = 'anonymous';
     img.decoding = 'async';
     img.onload = () => listeners.forEach((fn) => fn());
     img.src = src;
