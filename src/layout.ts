@@ -18,6 +18,8 @@ export const FORMATS: Format[] = [
   { id: 'ecom', label: 'Ecommerce', width: 360, height: 180, suffix: '', margin: { x: 0.12, top: 0.13, bottom: 0.09 } },
   { id: 'prime', label: 'Prime', width: 386, height: 257, suffix: '-PRM', margin: { x: 0.09, top: 0.18, bottom: 0.14 } },
   { id: 'prime-270', label: 'Prime 380×270', width: 380, height: 270, suffix: '-PRM-380x270', margin: { x: 0.09, top: 0.18, bottom: 0.14 } },
+  // 3x = 1080×1080; o pack fica centralizado, limitado pela largura
+  { id: 'square', label: 'Quadrado 1:1', width: 360, height: 360, suffix: '-1x1', margin: { x: 0.08, top: 0.12, bottom: 0.12 } },
 ];
 
 export const DEFAULT_ADJUST: ItemAdjust = { dx: 0, dy: 0, scale: 1, rot: 0, flip: false, z: 0 };

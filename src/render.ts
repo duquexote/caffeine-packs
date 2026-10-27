@@ -83,11 +83,46 @@ export function drawPlacements(ctx: CanvasRenderingContext2D, f: Format, placeme
       ctx.lineWidth = (sel ? 1.5 : 1) / o.scale;
       ctx.setLineDash(sel ? [] : [4 / o.scale, 3 / o.scale]);
       ctx.strokeStyle = sel ? '#C2410C' : 'rgba(194,65,12,0.6)';
-      const pad = 2;
+      const pad = SELECTION_PAD;
       ctx.strokeRect(b0 * p.w - pad, b1 * p.h - pad, (b2 - b0) * p.w + 2 * pad, (b3 - b1) * p.h + 2 * pad);
     });
+    if (!sel) continue;
+    // alças de redimensionar nas 4 pontas (HANDLE_SIZE px de tela)
+    const hs = (HANDLE_SIZE / 2) * (window.devicePixelRatio || 1) / o.scale;
+    ctx.lineWidth = 1.5 / o.scale;
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#C2410C';
+    ctx.fillStyle = '#fff';
+    for (const c of itemCorners(p, SELECTION_PAD)) {
+      ctx.fillRect(c.x - hs, c.y - hs, 2 * hs, 2 * hs);
+      ctx.strokeRect(c.x - hs, c.y - hs, 2 * hs, 2 * hs);
+    }
   }
   ctx.restore();
+}
+
+/** folga entre a imagem e o contorno de seleção, em unidades do frame */
+export const SELECTION_PAD = 2;
+/** lado das alças de redimensionar, em px de tela */
+export const HANDLE_SIZE = 8;
+
+/**
+ * Pontas da área visível do item no frame (já com giro e espelhamento), na ordem ↖ ↗ ↘ ↙ do quadro:
+ * a ponta oposta à de índice i é (i + 2) % 4. `pad` afasta as pontas da imagem.
+ */
+export function itemCorners(p: Placement, pad = 0): { x: number; y: number }[] {
+  const [b0, b1, b2, b3] = p.asset.bbox;
+  const r = (p.rot * Math.PI) / 180;
+  const cos = Math.cos(r), sin = Math.sin(r);
+  const local: [number, number][] = [
+    [b0 * p.w - pad, b1 * p.h - pad], [b2 * p.w + pad, b1 * p.h - pad],
+    [b2 * p.w + pad, b3 * p.h + pad], [b0 * p.w - pad, b3 * p.h + pad],
+  ];
+  return local.map(([lx, ly]) => {
+    // mesma transformação de withItemTransform: espelha e gira em torno do centro do quadro
+    const x = (lx - p.w / 2) * (p.flip ? -1 : 1), y = ly - p.h / 2;
+    return { x: p.x + p.w / 2 + x * cos - y * sin, y: p.y + p.h / 2 + x * sin + y * cos };
+  });
 }
 
 // ---- Seleção por clique (respeita a transparência do PNG) ----

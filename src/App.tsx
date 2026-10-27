@@ -415,7 +415,7 @@ export default function App() {
           />
         ))}
         <p className="hint muted small">
-          Clique num item para selecionar · arraste para mover · arraste o fundo para reposicionar o conjunto neste formato ·
+          Clique num item para selecionar · arraste para mover · puxe as pontas para redimensionar · arraste o fundo para reposicionar o conjunto neste formato ·
           os ajustes dos itens valem para todos os formatos
         </p>
       </main>

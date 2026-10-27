@@ -30,7 +30,8 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
 1. **Catálogo (esquerda):** clique em um produto ou brinde para adicionar. O pack se monta sozinho:
    - produtos à esquerda: o maior na frente, os outros atrás, sobrepostos;
    - brindes à direita: leque de sachês atrás, caneca na frente dele, mixer ao lado.
-2. **Ajuste fino (canvas):** clique para selecionar, arraste para mover, use Ctrl + roda do mouse para redimensionar.
+2. **Ajuste fino (canvas):** clique para selecionar, arraste para mover; para redimensionar, puxe uma das 4 pontas do
+   item selecionado (a ponta oposta fica parada) ou use Ctrl + roda do mouse.
    Arrastar o fundo reposiciona o conjunto só naquele formato. Os ajustes de item valem para todos os formatos.
 3. **Pack (direita):** troque sabor/tamanho/modelo pelos seletores (o item mantém a posição), reordene com ← →,
    duplique (⧉) para kits com várias latas, gire, espelhe e mude a camada. **Salvar tamanho como padrão** passa a
@@ -38,8 +39,8 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
    - **Lata da frente:** *Esquerda* (padrão dos banners de campanha) ou *Junto aos brindes* (latas crescendo até os
      brindes, como nos kits Black Friday do DS Army UI). Produtos ficam sempre à esquerda e brindes à direita.
    - **Fileiras:** *Auto* usa duas fileiras a partir de 6 produtos (a de trás mais alta, a da frente mais baixa).
-4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270), fundo, resolução (1x–4x) e
-   qualidade. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`).
+4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270, Quadrado 1:1 360×360), fundo,
+   resolução (1x–4x) e qualidade. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`, `nome-1x1.webp`).
 5. **Variações em lote:** selecione um item e abra *Gerar variações deste item em lote*. Sai um .zip com o pack em
    cada sabor escolhido, em todos os formatos marcados.
 
