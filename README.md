@@ -21,6 +21,8 @@ pública em `src/storage.ts`):
 - **Tamanhos padrão** (tabela `pack_sizes`): **Salvar tamanho como padrão** vale para o time inteiro.
 - **PNGs enviados** (tabela `pack_uploads` + bucket público `pack-uploads`): entram no catálogo normal, no objeto
   (brindes) ou na linha (produtos) escolhidos no envio.
+- **Fundos em imagem** (pasta `fundos/` do mesmo bucket): **Exportar → Fundo → + Imagem** aceita JPG, PNG ou WebP;
+  a imagem é reduzida (até 2560 px) e convertida para WebP antes de subir.
 
 O que estava salvo só no navegador antes da integração sobe sozinho na primeira abertura. O pack em edição e as
 preferências de exportação continuam no navegador de cada um. **Packs salvos → Exportar .json** serve de backup.
@@ -33,19 +35,23 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
 2. **Ajuste fino (canvas):** clique para selecionar, arraste para mover; para redimensionar, puxe uma das 4 pontas do
    item selecionado (a ponta oposta fica parada) ou use Ctrl + roda do mouse.
    Arrastar o fundo reposiciona o conjunto só naquele formato. Os ajustes de item valem para todos os formatos.
+   - **Vários itens:** Shift (ou Ctrl) + clique põe ou tira um item da seleção, no canvas ou na lista à direita;
+     Shift + arrastar no fundo seleciona em área; `Ctrl+A` seleciona todos. Os selecionados se movem juntos e as
+     pontas da caixa do conjunto (ou Ctrl + roda, `+` `-`) aumentam e diminuem todos na mesma proporção.
 3. **Pack (direita):** troque sabor/tamanho/modelo pelos seletores (o item mantém a posição), reordene com ← →,
    duplique (⧉) para kits com várias latas, gire, espelhe e mude a camada. **Salvar tamanho como padrão** passa a
    valer para todos os sabores daquele produto.
    - **Lata da frente:** *Esquerda* (padrão dos banners de campanha) ou *Junto aos brindes* (latas crescendo até os
      brindes, como nos kits Black Friday do DS Army UI). Produtos ficam sempre à esquerda e brindes à direita.
    - **Fileiras:** *Auto* usa duas fileiras a partir de 6 produtos (a de trás mais alta, a da frente mais baixa).
-4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270, Quadrado 1:1 360×360), fundo,
-   resolução (1x–4x) e qualidade. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`, `nome-1x1.webp`).
+4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270, Quadrado 1:1 360×360), fundo
+   (cor, transparente ou uma imagem enviada, que cobre o quadro inteiro de cada formato), resolução (1x–4x) e qualidade. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`, `nome-1x1.webp`).
 5. **Variações em lote:** selecione um item e abra *Gerar variações deste item em lote*. Sai um .zip com o pack em
    cada sabor escolhido, em todos os formatos marcados.
 
-Atalhos: `Ctrl+Z` / `Ctrl+Shift+Z` desfazer/refazer · `Ctrl+S` salvar · setas movem (Shift = 5x) ·
-`[` `]` camada · `+` `-` tamanho · `Delete` remove · `Esc` limpa a seleção.
+Atalhos: `Ctrl+Z` / `Ctrl+Shift+Z` desfazer/refazer · `Ctrl+S` salvar · `Ctrl+A` seleciona todos ·
+setas movem (Shift = 5x) · `[` `]` camada · `+` `-` tamanho · `Delete` remove · `Esc` limpa a seleção.
+Com vários itens selecionados, setas, `+` `-` e `Delete` valem para todos.
 
 ## Catálogo de imagens
 

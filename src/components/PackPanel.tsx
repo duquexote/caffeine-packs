@@ -2,20 +2,25 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Asset, ItemAdjust, Pack, PackLayout } from '../types';
 import { FORMATS, DEFAULT_ADJUST, DEFAULT_LAYOUT } from '../layout';
 import { PROP_LABEL, batchSiblings, optionsFor, propKeys, slugify, switchVariant } from '../catalog';
-import type { Prefs } from '../storage';
+import { isImageBackground } from '../render';
+import type { BackgroundImage, Prefs } from '../storage';
 
 interface Props {
   pack: Pack;
   assets: Map<string, Asset>;
   allAssets: Asset[];
-  selected: string | null;
-  onSelect: (uid: string | null) => void;
+  selection: string[];
+  onSelect: (uids: string[]) => void;
   onReplace: (uid: string, asset: Asset) => void;
   onMove: (uid: string, dir: -1 | 1) => void;
   onRemove: (uid: string) => void;
+  onRemoveSelection: () => void;
+  /** aumenta (k > 1) ou diminui os itens selecionados juntos */
+  onScaleSelection: (k: number) => void;
   onDuplicate: (uid: string) => void;
   onLayout: (patch: Partial<PackLayout>) => void;
   onAdjust: (uid: string, adj: ItemAdjust, push: boolean) => void;
+  onAdjustItems: (adjs: Record<string, ItemAdjust>, push: boolean) => void;
   onCheckpoint: () => void;
   onLayer: (uid: string, dir: -1 | 1) => void;
   onSaveDefaultSize: (uid: string) => void;
@@ -23,6 +28,10 @@ interface Props {
   onResetDefaultSize: (a: Asset) => void;
   prefs: Prefs;
   setPrefs: (p: Prefs) => void;
+  /** fundos em imagem enviados pelo time */
+  backgrounds: BackgroundImage[];
+  onUploadBackground: (file: File) => Promise<void>;
+  onRemoveBackground: (bg: BackgroundImage) => void;
   exporting: string | null;
   onExport: (zip: boolean) => void;
   onExportVariations: (uid: string, assetIds: string[]) => void;
@@ -34,11 +43,16 @@ const BACKGROUNDS = [
   { value: 'transparent', label: 'Transparente' },
 ];
 
+const isAdjusted = (adj: ItemAdjust | undefined) => !!adj && !!(adj.dx || adj.dy || adj.scale !== 1 || adj.rot || adj.flip || adj.z);
+
 export function PackPanel(p: Props) {
-  const products = p.pack.items.filter((it) => p.assets.get(it.assetId)?.kind === 'produto');
-  const gifts = p.pack.items.filter((it) => p.assets.get(it.assetId)?.kind !== 'produto');
+  // como no canvas, itens fora do catálogo ficam de fora (uploads do time ainda carregando ou removidos)
+  const known = p.pack.items.filter((it) => p.assets.has(it.assetId));
+  const products = known.filter((it) => p.assets.get(it.assetId)!.kind === 'produto');
+  const gifts = known.filter((it) => p.assets.get(it.assetId)!.kind !== 'produto');
   const slug = slugify(p.pack.name) || 'pack';
   const chosenFormats = FORMATS.filter((f) => p.prefs.formats.includes(f.id));
+  const [uploadingBg, setUploadingBg] = useState(false);
 
   const layout = { ...DEFAULT_LAYOUT, ...p.pack.layout };
   const twoRows = layout.rows === 2 || (layout.rows === 'auto' && products.length >= 6);
@@ -82,9 +96,12 @@ export function PackPanel(p: Props) {
       {!list.length && <p className="muted small">Nenhum. Clique no catálogo para adicionar.</p>}
       {list.map((it, i) => {
         const a = p.assets.get(it.assetId)!;
-        const sel = p.selected === it.uid;
+        const sel = p.selection.includes(it.uid);
+        // Shift (ou Ctrl/Cmd) + clique põe ou tira o item da seleção
+        const select = (e: React.MouseEvent) => p.onSelect(!(e.shiftKey || e.ctrlKey || e.metaKey) ? [it.uid]
+          : sel ? p.selection.filter((u) => u !== it.uid) : [...p.selection, it.uid]);
         return (
-          <div key={it.uid} className={'pack-item' + (sel ? ' selected' : '')} onClick={() => p.onSelect(it.uid)}>
+          <div key={it.uid} className={'pack-item' + (sel ? ' selected' : '')} onClick={select}>
             <div className="pack-item-head">
               <img src={a.thumb} alt="" />
               <div className="pack-item-title">
@@ -119,7 +136,7 @@ export function PackPanel(p: Props) {
                 })}
               </div>
             )}
-            {sel && <Inspector {...p} uid={it.uid} asset={a} />}
+            {sel && p.selection.length === 1 && <Inspector {...p} uid={it.uid} asset={a} />}
           </div>
         );
       })}
@@ -129,6 +146,28 @@ export function PackPanel(p: Props) {
   return (
     <aside className="panel pack-panel">
       <div className="panel-scroll">
+        {p.selection.length > 1 && (
+          <div className="multi-box">
+            <div className="row">
+              <strong>{p.selection.length} itens selecionados</strong>
+              <button className="link-btn" onClick={() => p.onSelect([])}>limpar</button>
+            </div>
+            <div className="row wrap">
+              <span className="muted small">Tamanho</span>
+              <button className="icon-btn" title="Diminuir juntos (atalho: −)" onClick={() => p.onScaleSelection(1 / 1.1)}>−</button>
+              <button className="icon-btn" title="Aumentar juntos (atalho: +)" onClick={() => p.onScaleSelection(1.1)}>+</button>
+              <button className="btn small ghost" disabled={!p.selection.some((u) => isAdjusted(p.pack.adjust[u]))}
+                onClick={() => p.onAdjustItems(Object.fromEntries(p.selection.map((u) => [u, DEFAULT_ADJUST])), true)}>
+                Resetar posição
+              </button>
+              <button className="btn small ghost" onClick={p.onRemoveSelection}>Remover {p.selection.length}</button>
+            </div>
+            <p className="muted small">
+              Arraste no canvas para mover juntos · puxe as pontas ou use Ctrl + roda para redimensionar juntos ·
+              Shift + clique põe ou tira itens da seleção
+            </p>
+          </div>
+        )}
         {renderGroup('Produtos', products)}
         {renderGroup('Brindes', gifts)}
 
@@ -162,7 +201,29 @@ export function PackPanel(p: Props) {
                   onChange={(e) => p.setPrefs({ ...p.prefs, background: e.target.value.toUpperCase() })} />
                 Outra
               </label>
+              {p.backgrounds.map((b) => (
+                <span key={b.name} className="bg-swatch">
+                  <button className={'swatch' + (p.prefs.background === b.url ? ' active' : '')} title="Usar esta imagem de fundo"
+                    onClick={() => p.setPrefs({ ...p.prefs, background: b.url })}>
+                    <img src={b.url} alt="" crossOrigin="anonymous" />
+                  </button>
+                  <button className="bg-remove" title="Remover (some para todo o time)" onClick={() => p.onRemoveBackground(b)}>×</button>
+                </span>
+              ))}
+              <label className={'swatch' + (uploadingBg ? ' busy' : '')} title="Enviar uma imagem de fundo (JPG, PNG ou WebP); fica disponível para todo o time">
+                <input type="file" accept="image/png,image/jpeg,image/webp" hidden disabled={uploadingBg} onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = '';
+                  if (!file) return;
+                  setUploadingBg(true);
+                  p.onUploadBackground(file).finally(() => setUploadingBg(false));
+                }} />
+                {uploadingBg ? 'Enviando…' : '+ Imagem'}
+              </label>
             </div>
+            {isImageBackground(p.prefs.background) && (
+              <span className="muted small">A imagem cobre o quadro inteiro de cada formato, centralizada.</span>
+            )}
           </div>
           <div className="field">
             <span>Resolução</span>
@@ -204,7 +265,7 @@ function Inspector(p: Props & { uid: string; asset: Asset }) {
   const [batch, setBatch] = useState<Set<string>>(new Set());
   const [showBatch, setShowBatch] = useState(false);
   useEffect(() => { setBatch(new Set([p.asset.id])); }, [p.uid, p.asset.id]);
-  const changed = adj.dx || adj.dy || adj.scale !== 1 || adj.rot || adj.flip || adj.z;
+  const changed = isAdjusted(adj);
 
   // sliders: ponto de histórico ao começar a arrastar, depois atualiza sem empilhar
   const slider = (key: 'scale' | 'rot', min: number, max: number, step: number, fmt: (v: number) => string) => (
@@ -235,7 +296,7 @@ function Inspector(p: Props & { uid: string; asset: Asset }) {
           <button className="link-btn" onClick={() => p.onResetDefaultSize(p.asset)}>voltar ao tamanho original</button>
         )}
       </div>
-      <p className="muted small">Arraste no canvas para mover · Ctrl + roda para redimensionar · setas ajustam fino</p>
+      <p className="muted small">Arraste no canvas para mover · Ctrl + roda para redimensionar · setas ajustam fino · Shift + clique seleciona mais itens</p>
 
       {siblings.length > 1 && (
         <div className="batch">

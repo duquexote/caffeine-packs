@@ -23,6 +23,7 @@ create policy "gerador-pack: leitura" on public.pack_uploads for select to anon,
 create policy "gerador-pack: envio" on public.pack_uploads for insert to anon, authenticated with check (true);
 create policy "gerador-pack: remoção" on public.pack_uploads for delete to anon, authenticated using (true);
 
+-- O mesmo bucket guarda os fundos em imagem, na pasta fundos/ (sem tabela: a lista vem do próprio storage).
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('pack-uploads', 'pack-uploads', true, 20971520, array['image/png', 'image/webp']);
 

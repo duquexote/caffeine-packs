@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Asset, Format, FormatAdjust, ItemAdjust, ItemType, Pack, PackLayout } from './types';
 import { BUILTIN_ASSETS, shapeKey, slugify, variantSlug } from './catalog';
-import { DEFAULT_ADJUST, DEFAULT_LAYOUT, FORMATS, defaultVisualHeight, giftOrder, layoutPack } from './layout';
-import { downloadBlob, renderPackBlob, zipFiles } from './render';
 import {
-  addUpload, deleteSavedPack, deleteSize, loadCurrent, loadPacks, loadPrefs, loadSizes, loadUploads, removeUpload,
-  saveCurrent, savePacks, savePrefs, saveSizes, type Prefs,
+  DEFAULT_ADJUST, DEFAULT_LAYOUT, FORMATS, defaultVisualHeight, giftOrder, layoutPack, scaleItems, selectionBase,
+} from './layout';
+import { downloadBlob, isImageBackground, renderPackBlob, zipFiles } from './render';
+import {
+  DEFAULT_PREFS, addBackground, addUpload, deleteSavedPack, deleteSize, loadBackgrounds, loadCurrent, loadPacks,
+  loadPrefs, loadSizes, loadUploads, removeBackground, removeUpload, saveCurrent, savePacks, savePrefs, saveSizes,
+  type BackgroundImage, type Prefs,
 } from './storage';
 import { usePackHistory } from './usePackHistory';
 import { CatalogPanel } from './components/CatalogPanel';
@@ -30,11 +33,15 @@ const kb = (n: number) => `${Math.max(1, Math.round(n / 1024))} KB`;
 
 export default function App() {
   const [uploads, setUploads] = useState<Asset[]>([]);
+  const [uploadsLoaded, setUploadsLoaded] = useState(false);
+  const [backgrounds, setBackgrounds] = useState<BackgroundImage[]>([]);
   const allAssets = useMemo(() => [...BUILTIN_ASSETS, ...uploads], [uploads]);
   const assetMap = useMemo(() => new Map(allAssets.map((a) => [a.id, a])), [allAssets]);
 
   const { pack, update, checkpoint, replace, undo, redo, canUndo, canRedo } = usePackHistory(() => loadCurrent() ?? examplePack());
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selection, setSelection] = useState<string[]>([]);
+  // itens selecionados que ainda estão no pack (somem ao remover ou desfazer)
+  const selected = useMemo(() => selection.filter((u) => pack.items.some((it) => it.uid === u)), [selection, pack.items]);
   const [saved, setSaved] = useState<Pack[]>([]);
   const [prefs, setPrefsState] = useState<Prefs>(loadPrefs);
   const [sizes, setSizes] = useState<Record<string, number>>({});
@@ -45,11 +52,18 @@ export default function App() {
   /** Aviso para falhas do Supabase (uso: `.catch(warn('...'))`). */
   const warn = (msg: string) => () => setToast({ msg, error: true });
 
-  // uploads, packs salvos e tamanhos padrão são do time inteiro (Supabase)
+  // uploads, packs salvos, tamanhos padrão e fundos são do time inteiro (Supabase)
   useEffect(() => {
-    loadUploads().then(setUploads).catch(warn('Não foi possível carregar os uploads do time (Supabase)'));
+    loadUploads().then(setUploads).catch(warn('Não foi possível carregar os uploads do time (Supabase)'))
+      .finally(() => setUploadsLoaded(true));
     loadPacks().then(setSaved).catch(warn('Não foi possível carregar os packs salvos (Supabase)'));
     loadSizes().then(setSizes).catch(warn('Não foi possível carregar os tamanhos padrão (Supabase)'));
+    loadBackgrounds().then((list) => {
+      setBackgrounds(list);
+      // o fundo escolhido foi removido por alguém do time: volta para a cor padrão
+      const p = loadPrefs();
+      if (isImageBackground(p.background) && !list.some((b) => b.url === p.background)) setPrefs({ ...p, background: DEFAULT_PREFS.background });
+    }).catch(warn('Não foi possível carregar os fundos do time (Supabase)'));
   }, []);
   useEffect(() => { saveCurrent(pack); }, [pack]);
   useEffect(() => {
@@ -59,6 +73,26 @@ export default function App() {
   }, [toast]);
 
   const setPrefs = (p: Prefs) => { setPrefsState(p); savePrefs(p); };
+
+  /** Envia uma imagem de fundo para o time e já usa ela. */
+  const uploadBackground = async (file: File) => {
+    try {
+      const bg = await addBackground(file);
+      setBackgrounds((b) => [...b, bg]);
+      setPrefs({ ...prefs, background: bg.url });
+    } catch (e) {
+      setToast({ msg: 'Falha ao enviar o fundo: ' + (e instanceof Error ? e.message : 'erro desconhecido'), error: true });
+    }
+  };
+  const deleteBackground = (bg: BackgroundImage) => {
+    if (!confirm('Remover este fundo? Ele some para todo o time.')) return;
+    removeBackground(bg.name)
+      .then(() => {
+        setBackgrounds((b) => b.filter((x) => x.name !== bg.name));
+        if (prefs.background === bg.url) setPrefs({ ...prefs, background: DEFAULT_PREFS.background });
+      })
+      .catch(warn('Não foi possível remover o fundo'));
+  };
   const sizeOverride = useCallback((a: Asset) => sizes[shapeKey(a)] ?? 1, [sizes]);
 
   // ---- edição do pack ----
@@ -91,7 +125,7 @@ export default function App() {
       }
       return { ...p, items };
     });
-    setSelected(item.uid);
+    setSelection([item.uid]);
   };
 
   /** Mais uma unidade do mesmo item, logo ao lado (kits com várias latas). */
@@ -105,7 +139,7 @@ export default function App() {
       items.splice(i + 1, 0, copy);
       return { ...p, items };
     });
-    setSelected(copy.uid);
+    setSelection([copy.uid]);
   };
 
   /** Ao trocar o lado da lata da frente, espelha a ordem dos produtos para a mesma lata continuar na frente. */
@@ -124,13 +158,13 @@ export default function App() {
   const replaceAsset = (itemUid: string, asset: Asset) =>
     update((p) => ({ ...p, items: p.items.map((it) => (it.uid === itemUid ? { ...it, assetId: asset.id } : it)) }));
 
-  const removeItem = (itemUid: string) => {
+  const removeItems = (uids: string[]) => {
     update((p) => {
       const adjust = { ...p.adjust };
-      delete adjust[itemUid];
-      return { ...p, items: p.items.filter((it) => it.uid !== itemUid), adjust };
+      for (const u of uids) delete adjust[u];
+      return { ...p, items: p.items.filter((it) => !uids.includes(it.uid)), adjust };
     });
-    if (selected === itemUid) setSelected(null);
+    setSelection((s) => s.filter((u) => !uids.includes(u)));
   };
 
   /** Move dentro do próprio grupo (produtos ou brindes), mudando a ordem da montagem. */
@@ -145,8 +179,16 @@ export default function App() {
     return { ...p, items };
   });
 
-  const adjustItem = (itemUid: string, adj: ItemAdjust, push: boolean) =>
-    update((p) => ({ ...p, adjust: { ...p.adjust, [itemUid]: adj } }), push);
+  const adjustItems = (adjs: Record<string, ItemAdjust>, push: boolean) =>
+    update((p) => ({ ...p, adjust: { ...p.adjust, ...adjs } }), push);
+  const adjustItem = (itemUid: string, adj: ItemAdjust, push: boolean) => adjustItems({ [itemUid]: adj }, push);
+
+  /** Aumenta ou diminui os itens selecionados juntos (um só cresce no lugar; vários, a partir da base do conjunto). */
+  const scaleSelected = (k: number) => {
+    const { placements, t } = layoutPack(pack, assetMap, FORMATS[0], sizeOverride);
+    const sel = placements.filter((pl) => selected.includes(pl.uid));
+    if (sel.length) adjustItems(scaleItems(pack, sel, selectionBase(sel), k, t.s), true);
+  };
 
   const adjustFormat = (formatId: string) => (fa: FormatAdjust, push: boolean) =>
     update((p) => ({ ...p, formatAdjust: { ...p.formatAdjust, [formatId]: fa } }), push);
@@ -203,7 +245,7 @@ export default function App() {
     if (!menuOpen) loadPacks().then(setSaved).catch(warn('Não foi possível atualizar os packs salvos'));
     setMenuOpen(!menuOpen);
   };
-  const openPack = (p: Pack) => { replace(p); setSelected(null); setMenuOpen(false); };
+  const openPack = (p: Pack) => { replace(p); setSelection([]); setMenuOpen(false); };
   const deletePack = (p: Pack) => {
     if (!confirm(`Excluir o pack "${p.name}"? Ele some para todo o time.`)) return;
     deleteSavedPack(p.id)
@@ -247,7 +289,8 @@ export default function App() {
   const exportOpts = { scale: prefs.scale, quality: prefs.quality, background: prefs.background, sizeOverride };
   const chosenFormats = FORMATS.filter((f) => prefs.formats.includes(f.id));
 
-  const missingAssets = pack.items.filter((it) => !assetMap.has(it.assetId)).length;
+  // só depois de carregar os uploads do time (antes disso, os itens enviados ainda não estão no catálogo)
+  const missingAssets = uploadsLoaded ? pack.items.filter((it) => !assetMap.has(it.assetId)).length : 0;
 
   const runExport = async (kind: string, build: () => Promise<{ name: string; blob: Blob }[]>, zipName: string | null) => {
     setExporting(kind);
@@ -304,21 +347,25 @@ export default function App() {
     if (typing) return;
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
-    if (e.key === 'Escape') { setSelected(null); setMenuOpen(false); return; }
-    if (!selected) return;
-    const adj = pack.adjust[selected] ?? DEFAULT_ADJUST;
+    if (e.key === 'Escape') { setSelection([]); setMenuOpen(false); return; }
+    if (mod && e.key.toLowerCase() === 'a') { e.preventDefault(); setSelection(pack.items.map((it) => it.uid)); return; }
+    if (!selected.length) return;
     const step = e.shiftKey ? 5 : 1;
     const nudge: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
     if (nudge[e.key]) {
       e.preventDefault();
-      adjustItem(selected, { ...adj, dx: adj.dx + nudge[e.key][0], dy: adj.dy + nudge[e.key][1] }, !e.repeat);
+      const [ndx, ndy] = nudge[e.key];
+      adjustItems(Object.fromEntries(selected.map((u) => {
+        const adj = pack.adjust[u] ?? DEFAULT_ADJUST;
+        return [u, { ...adj, dx: adj.dx + ndx, dy: adj.dy + ndy }];
+      })), !e.repeat);
     } else if (e.key === 'Delete' || e.key === 'Backspace') {
       e.preventDefault();
-      removeItem(selected);
-    } else if (e.key === ']') layer(selected, 1);
-    else if (e.key === '[') layer(selected, -1);
-    else if (e.key === '+' || e.key === '=') adjustItem(selected, { ...adj, scale: adj.scale * 1.04 }, true);
-    else if (e.key === '-') adjustItem(selected, { ...adj, scale: adj.scale / 1.04 }, true);
+      removeItems(selected);
+    } else if (e.key === ']' && selected.length === 1) layer(selected[0], 1);
+    else if (e.key === '[' && selected.length === 1) layer(selected[0], -1);
+    else if (e.key === '+' || e.key === '=') scaleSelected(1.04);
+    else if (e.key === '-') scaleSelected(1 / 1.04);
   };
   useEffect(() => {
     const fn = (e: KeyboardEvent) => keyRef.current(e);
@@ -345,7 +392,7 @@ export default function App() {
         <div className="top-actions">
           <button className="icon-btn" onClick={undo} disabled={!canUndo} title="Desfazer (Ctrl+Z)">↶</button>
           <button className="icon-btn" onClick={redo} disabled={!canRedo} title="Refazer (Ctrl+Shift+Z)">↷</button>
-          <button className="btn ghost" onClick={() => { replace(blankPack()); setSelected(null); }}>Novo</button>
+          <button className="btn ghost" onClick={() => { replace(blankPack()); setSelection([]); }}>Novo</button>
           <button className="btn ghost" onClick={duplicatePack}>Duplicar</button>
           <button className="btn" onClick={savePack} title="Ctrl+S">Salvar</button>
           <div className="menu-wrap">
@@ -393,7 +440,7 @@ export default function App() {
           .catch(() => setToast({ msg: `Não foi possível remover "${a.label}"`, error: true }))}
       />
 
-      <main className="stage" onClick={(e) => { if (e.target === e.currentTarget) setSelected(null); }}>
+      <main className="stage" onClick={(e) => { if (e.target === e.currentTarget) setSelection([]); }}>
         {missingAssets > 0 && (
           <div className="warning">{missingAssets} item(ns) deste pack não estão no catálogo atual e foram ignorados.</div>
         )}
@@ -405,9 +452,9 @@ export default function App() {
             assets={assetMap}
             sizeOverride={sizeOverride}
             background={prefs.background}
-            selected={selected}
-            onSelect={setSelected}
-            onAdjustItem={adjustItem}
+            selection={selected}
+            onSelect={setSelection}
+            onAdjustItems={adjustItems}
             onAdjustFormat={adjustFormat(f.id)}
             onExport={() => exportPack(false, f)}
             exporting={!!exporting}
@@ -415,7 +462,8 @@ export default function App() {
           />
         ))}
         <p className="hint muted small">
-          Clique num item para selecionar · arraste para mover · puxe as pontas para redimensionar · arraste o fundo para reposicionar o conjunto neste formato ·
+          Clique num item para selecionar · Shift + clique (ou Shift + arrastar no fundo) seleciona vários · Ctrl + A seleciona todos ·
+          arraste para mover · puxe as pontas para redimensionar · arraste o fundo para reposicionar o conjunto neste formato ·
           os ajustes dos itens valem para todos os formatos
         </p>
       </main>
@@ -424,14 +472,17 @@ export default function App() {
         pack={pack}
         assets={assetMap}
         allAssets={allAssets}
-        selected={selected}
-        onSelect={setSelected}
+        selection={selected}
+        onSelect={setSelection}
         onReplace={replaceAsset}
         onMove={moveItem}
-        onRemove={removeItem}
+        onRemove={(u) => removeItems([u])}
+        onRemoveSelection={() => removeItems(selected)}
+        onScaleSelection={scaleSelected}
         onDuplicate={duplicateItem}
         onLayout={setLayout}
         onAdjust={adjustItem}
+        onAdjustItems={adjustItems}
         onCheckpoint={checkpoint}
         onLayer={layer}
         onSaveDefaultSize={saveDefaultSize}
@@ -439,6 +490,9 @@ export default function App() {
         onResetDefaultSize={resetDefaultSize}
         prefs={prefs}
         setPrefs={setPrefs}
+        backgrounds={backgrounds}
+        onUploadBackground={uploadBackground}
+        onRemoveBackground={deleteBackground}
         exporting={exporting}
         onExport={(zip) => exportPack(zip)}
         onExportVariations={exportVariations}

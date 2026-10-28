@@ -316,3 +316,81 @@ export function layoutPack(
   placements.sort((a, b) => a.z - b.z);
   return { placements, t };
 }
+
+// ---- Seleção (um ou vários itens) ----
+
+type Pt = { x: number; y: number };
+
+/** Limites da escala manual de um item. */
+export const MIN_SCALE = 0.2;
+export const MAX_SCALE = 4;
+
+/**
+ * Pontas da área visível do item no frame (já com giro e espelhamento), na ordem ↖ ↗ ↘ ↙ do quadro:
+ * a ponta oposta à de índice i é (i + 2) % 4. `pad` afasta as pontas da imagem.
+ */
+export function itemCorners(p: Placement, pad = 0): Pt[] {
+  const [b0, b1, b2, b3] = p.asset.bbox;
+  const r = (p.rot * Math.PI) / 180;
+  const cos = Math.cos(r), sin = Math.sin(r);
+  const local: [number, number][] = [
+    [b0 * p.w - pad, b1 * p.h - pad], [b2 * p.w + pad, b1 * p.h - pad],
+    [b2 * p.w + pad, b3 * p.h + pad], [b0 * p.w - pad, b3 * p.h + pad],
+  ];
+  return local.map(([lx, ly]) => {
+    // mesma transformação do desenho: espelha e gira em torno do centro do quadro
+    const x = (lx - p.w / 2) * (p.flip ? -1 : 1), y = ly - p.h / 2;
+    return { x: p.x + p.w / 2 + x * cos - y * sin, y: p.y + p.h / 2 + x * sin + y * cos };
+  });
+}
+
+/**
+ * Pontas da seleção, na mesma ordem de itemCorners: as do próprio item quando é um só (acompanham o giro);
+ * com vários, as da caixa que envolve todos.
+ */
+export function selectionCorners(sel: Placement[], pad = 0): Pt[] {
+  if (sel.length === 1) return itemCorners(sel[0], pad);
+  const pts = sel.flatMap((p) => itemCorners(p));
+  const xs = pts.map((c) => c.x), ys = pts.map((c) => c.y);
+  const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad;
+  const y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+  return [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: x0, y: y1 }];
+}
+
+/** Ponto em torno do qual layoutPack aplica a escala manual do item: a base central visível (sem giro). */
+function scaleAnchor(p: Placement): Pt {
+  const [b0, , b2, b3] = p.asset.bbox;
+  return { x: p.x + ((b0 + b2) / 2) * p.w, y: p.y + b3 * p.h };
+}
+
+/** Pivô do +/− e da roda do mouse: a base do item (escala no lugar) ou a base central do conjunto selecionado. */
+export function selectionBase(sel: Placement[]): Pt {
+  if (sel.length === 1) return scaleAnchor(sel[0]);
+  const c = selectionCorners(sel);
+  return { x: (c[0].x + c[1].x) / 2, y: c[2].y };
+}
+
+/**
+ * Ajustes para escalar os itens selecionados juntos por `k` em torno de `pivot` (unidades do frame; `s` é a
+ * escala ref -> frame). Cada item cresce e a sua âncora se afasta do pivô na mesma proporção, então o
+ * conjunto inteiro (com giros e espelhamentos) muda de tamanho sem se desmontar e o pivô fica parado.
+ * `pack` e `sel` são o estado de partida (no início do arraste).
+ */
+export function scaleItems(pack: Pack, sel: Placement[], pivot: Pt, k: number, s: number): Record<string, ItemAdjust> {
+  const start = (p: Placement) => pack.adjust[p.uid] ?? DEFAULT_ADJUST;
+  // nenhum item passa dos limites (um item que já estava fora deles não trava o resto)
+  const lo = Math.min(1, Math.max(...sel.map((p) => MIN_SCALE / start(p).scale)));
+  const hi = Math.max(1, Math.min(...sel.map((p) => MAX_SCALE / start(p).scale)));
+  const f = Math.min(hi, Math.max(lo, k));
+  const out: Record<string, ItemAdjust> = {};
+  for (const p of sel) {
+    const a = start(p), anchor = scaleAnchor(p);
+    out[p.uid] = {
+      ...a,
+      scale: a.scale * f,
+      dx: a.dx + ((anchor.x - pivot.x) * (f - 1)) / s,
+      dy: a.dy + ((anchor.y - pivot.y) * (f - 1)) / s,
+    };
+  }
+  return out;
+}

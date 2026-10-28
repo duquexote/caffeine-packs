@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import type { Asset, Format, Pack, Placement } from './types';
-import { layoutPack } from './layout';
+import { layoutPack, selectionCorners } from './layout';
 
 // ---- Cache de imagens ----
 
@@ -37,11 +37,14 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
 
 // ---- Desenho ----
 
+/** O fundo é 'transparent', uma cor (#hex) ou a URL de uma imagem enviada. */
+export const isImageBackground = (bg: string) => /^(https?:|blob:|data:)/.test(bg);
+
 export interface DrawOptions {
   /** pixels por unidade do frame */
   scale: number;
-  background: string; // 'transparent' ou cor
-  selected?: string | null;
+  background: string; // 'transparent', cor ou URL de imagem
+  selected?: string[];
   hovered?: string | null;
 }
 
@@ -60,12 +63,20 @@ export function drawPlacements(ctx: CanvasRenderingContext2D, f: Format, placeme
   ctx.save();
   ctx.setTransform(o.scale, 0, 0, o.scale, 0, 0);
   ctx.clearRect(0, 0, f.width, f.height);
-  if (o.background !== 'transparent') {
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  if (isImageBackground(o.background)) {
+    const img = getImage(o.background);
+    if (img.complete && img.naturalWidth) {
+      // cobre o quadro inteiro, centralizada (como background-size: cover)
+      const k = Math.max(f.width / img.naturalWidth, f.height / img.naturalHeight);
+      const w = img.naturalWidth * k, h = img.naturalHeight * k;
+      ctx.drawImage(img, (f.width - w) / 2, (f.height - h) / 2, w, h);
+    }
+  } else if (o.background !== 'transparent') {
     ctx.fillStyle = o.background;
     ctx.fillRect(0, 0, f.width, f.height);
   }
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
   for (const p of placements) {
     const img = getImage(p.asset.src);
     if (!img.complete || !img.naturalWidth) continue;
@@ -75,8 +86,9 @@ export function drawPlacements(ctx: CanvasRenderingContext2D, f: Format, placeme
     });
   }
   // contorno de seleção (só na tela)
+  const selected = o.selected ?? [];
   for (const p of placements) {
-    const sel = p.uid === o.selected;
+    const sel = selected.includes(p.uid);
     if (!sel && p.uid !== o.hovered) continue;
     const [b0, b1, b2, b3] = p.asset.bbox;
     withItemTransform(ctx, p, () => {
@@ -86,14 +98,22 @@ export function drawPlacements(ctx: CanvasRenderingContext2D, f: Format, placeme
       const pad = SELECTION_PAD;
       ctx.strokeRect(b0 * p.w - pad, b1 * p.h - pad, (b2 - b0) * p.w + 2 * pad, (b3 - b1) * p.h + 2 * pad);
     });
-    if (!sel) continue;
+  }
+  const sel = placements.filter((p) => selected.includes(p.uid));
+  if (sel.length) {
+    const corners = selectionCorners(sel, SELECTION_PAD);
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#C2410C';
+    if (sel.length > 1) {
+      // caixa do conjunto: é ela que as alças redimensionam
+      ctx.lineWidth = 1 / o.scale;
+      ctx.strokeRect(corners[0].x, corners[0].y, corners[2].x - corners[0].x, corners[2].y - corners[0].y);
+    }
     // alças de redimensionar nas 4 pontas (HANDLE_SIZE px de tela)
     const hs = (HANDLE_SIZE / 2) * (window.devicePixelRatio || 1) / o.scale;
     ctx.lineWidth = 1.5 / o.scale;
-    ctx.setLineDash([]);
-    ctx.strokeStyle = '#C2410C';
     ctx.fillStyle = '#fff';
-    for (const c of itemCorners(p, SELECTION_PAD)) {
+    for (const c of corners) {
       ctx.fillRect(c.x - hs, c.y - hs, 2 * hs, 2 * hs);
       ctx.strokeRect(c.x - hs, c.y - hs, 2 * hs, 2 * hs);
     }
@@ -105,25 +125,6 @@ export function drawPlacements(ctx: CanvasRenderingContext2D, f: Format, placeme
 export const SELECTION_PAD = 2;
 /** lado das alças de redimensionar, em px de tela */
 export const HANDLE_SIZE = 8;
-
-/**
- * Pontas da área visível do item no frame (já com giro e espelhamento), na ordem ↖ ↗ ↘ ↙ do quadro:
- * a ponta oposta à de índice i é (i + 2) % 4. `pad` afasta as pontas da imagem.
- */
-export function itemCorners(p: Placement, pad = 0): { x: number; y: number }[] {
-  const [b0, b1, b2, b3] = p.asset.bbox;
-  const r = (p.rot * Math.PI) / 180;
-  const cos = Math.cos(r), sin = Math.sin(r);
-  const local: [number, number][] = [
-    [b0 * p.w - pad, b1 * p.h - pad], [b2 * p.w + pad, b1 * p.h - pad],
-    [b2 * p.w + pad, b3 * p.h + pad], [b0 * p.w - pad, b3 * p.h + pad],
-  ];
-  return local.map(([lx, ly]) => {
-    // mesma transformação de withItemTransform: espelha e gira em torno do centro do quadro
-    const x = (lx - p.w / 2) * (p.flip ? -1 : 1), y = ly - p.h / 2;
-    return { x: p.x + p.w / 2 + x * cos - y * sin, y: p.y + p.h / 2 + x * sin + y * cos };
-  });
-}
 
 // ---- Seleção por clique (respeita a transparência do PNG) ----
 
@@ -178,7 +179,9 @@ export interface ExportOptions {
 
 export async function renderPackBlob(pack: Pack, assets: Map<string, Asset>, f: Format, o: ExportOptions): Promise<Blob> {
   const { placements } = layoutPack(pack, assets, f, o.sizeOverride);
-  await Promise.all(placements.map((p) => loadImage(p.asset.src)));
+  const srcs = placements.map((p) => p.asset.src);
+  if (isImageBackground(o.background)) srcs.push(o.background);
+  await Promise.all(srcs.map(loadImage));
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(f.width * o.scale);
   canvas.height = Math.round(f.height * o.scale);

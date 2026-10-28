@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Asset, ItemType, Pack, Rect4 } from './types';
+import { slugify } from './catalog';
 
 // Ferramenta interna, sem conteúdo sensível: a chave pública fica no código de propósito.
 const supabase = createClient(
@@ -40,6 +41,7 @@ function forget(key: string) {
 /** Rascunho em edição: é de cada pessoa, fica no navegador. */
 export const loadCurrent = () => read<Pack | null>(KEY_CURRENT, null);
 export const saveCurrent = (p: Pack) => write(KEY_CURRENT, p);
+export const discardCurrent = () => forget(KEY_CURRENT);
 
 // ---- Packs salvos e tamanhos padrão (Supabase: tabelas packs e pack_sizes, compartilhadas com o time) ----
 
@@ -177,6 +179,47 @@ export async function removeUpload(id: string) {
   if (error) throw error;
   const paths = (data as { path: string }[]).map((r) => r.path);
   if (paths.length) await supabase.storage.from(BUCKET).remove(paths);
+}
+
+// ---- Fundos em imagem (Supabase: pasta fundos/ do bucket pack-uploads, compartilhados com o time) ----
+
+const BG_DIR = 'fundos';
+/** lado maior do fundo enviado: cobre o maior formato em 4x com folga para o recorte */
+const BG_MAX = 2560;
+
+export interface BackgroundImage {
+  name: string;
+  url: string;
+}
+
+const bgUrl = (name: string) => supabase.storage.from(BUCKET).getPublicUrl(`${BG_DIR}/${name}`).data.publicUrl;
+
+export async function loadBackgrounds(): Promise<BackgroundImage[]> {
+  const { data, error } = await supabase.storage.from(BUCKET).list(BG_DIR, { limit: 1000, sortBy: { column: 'created_at', order: 'asc' } });
+  if (error) throw error;
+  // subpastas (sem id) e o marcador de pasta vazia não são fundos
+  return data.filter((o) => o.id && !o.name.startsWith('.')).map((o) => ({ name: o.name, url: bgUrl(o.name) }));
+}
+
+/** Reduz, converte para WebP (o bucket só aceita PNG/WebP, então JPG também entra) e envia. */
+export async function addBackground(file: File): Promise<BackgroundImage> {
+  const bitmap = await createImageBitmap(file);
+  const k = Math.min(1, BG_MAX / Math.max(bitmap.width, bitmap.height));
+  const c = new OffscreenCanvas(Math.round(bitmap.width * k), Math.round(bitmap.height * k));
+  c.getContext('2d')!.drawImage(bitmap, 0, 0, c.width, c.height);
+  const blob = await c.convertToBlob({ type: 'image/webp', quality: 0.92 });
+  // navegador sem WebP no canvas devolve PNG
+  const ext = blob.type === 'image/webp' ? 'webp' : 'png';
+  const name = `${Date.now().toString(36)}-${slugify(file.name.replace(/\.[^.]+$/, '')).slice(0, 40) || 'fundo'}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET).upload(`${BG_DIR}/${name}`, blob, { contentType: blob.type });
+  if (error) throw error;
+  return { name, url: bgUrl(name) };
+}
+
+/** Remove para todo o time. */
+export async function removeBackground(name: string) {
+  const { error } = await supabase.storage.from(BUCKET).remove([`${BG_DIR}/${name}`]);
+  if (error) throw error;
 }
 
 // ---- Uploads antigos (IndexedDB), só para a migração acima ----
