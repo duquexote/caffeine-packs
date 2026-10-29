@@ -97,8 +97,13 @@ export interface Prefs {
   quality: number;
   background: string;
 }
-export const DEFAULT_PREFS: Prefs = { formats: ['ecom', 'prime'], scale: 3, quality: 0.9, background: '#F4F0E9' };
-export const loadPrefs = () => ({ ...DEFAULT_PREFS, ...read<Partial<Prefs>>(KEY_PREFS, {}) });
+/** qualidade 1 = WebP sem perda (igual ao PNG do Figma); abaixo disso o WebP borra bordas coloridas e texto */
+export const DEFAULT_PREFS: Prefs = { formats: ['ecom', 'prime'], scale: 3, quality: 1, background: '#F4F0E9' };
+export const loadPrefs = (): Prefs => {
+  const p = { ...DEFAULT_PREFS, ...read<Partial<Prefs>>(KEY_PREFS, {}) };
+  // 0.9 era o padrão antigo (com perda): quem nunca mexeu passa para sem perda
+  return p.quality === 0.9 ? { ...p, quality: DEFAULT_PREFS.quality } : p;
+};
 export const savePrefs = (p: Prefs) => write(KEY_PREFS, p);
 
 // ---- Imagens enviadas pelo time (Supabase: tabela pack_uploads + bucket pack-uploads) ----

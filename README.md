@@ -45,7 +45,9 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
      brindes, como nos kits Black Friday do DS Army UI). Produtos ficam sempre à esquerda e brindes à direita.
    - **Fileiras:** *Auto* usa duas fileiras a partir de 6 produtos (a de trás mais alta, a da frente mais baixa).
 4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270, Quadrado 1:1 360×360), fundo
-   (cor, transparente ou uma imagem enviada, que cobre o quadro inteiro de cada formato), resolução (1x–4x) e qualidade. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`, `nome-1x1.webp`).
+   (cor, transparente ou uma imagem enviada, que cobre o quadro inteiro de cada formato), resolução (1x–4x) e qualidade.
+   Na exportação cada item é reduzido com Lanczos3 (como o Figma) e a qualidade 100 grava WebP sem perda, igual ao
+   PNG do Figma; abaixo de 100 o arquivo fica bem menor, mas o WebP borra um pouco texto e bordas coloridas. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`, `nome-1x1.webp`).
 5. **Variações em lote:** selecione um item e abra *Gerar variações deste item em lote*. Sai um .zip com o pack em
    cada sabor escolhido, em todos os formatos marcados.
 

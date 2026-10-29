@@ -237,7 +237,7 @@ export function PackPanel(p: Props) {
             </span>
           </div>
           <div className="field">
-            <span>Qualidade WebP: {Math.round(p.prefs.quality * 100)}</span>
+            <span>Qualidade WebP: {p.prefs.quality === 1 ? '100 (sem perda)' : Math.round(p.prefs.quality * 100)}</span>
             <input type="range" min={0.6} max={1} step={0.01} value={p.prefs.quality}
               onChange={(e) => p.setPrefs({ ...p.prefs, quality: +e.target.value })} />
           </div>

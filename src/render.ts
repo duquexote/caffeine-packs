@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import type { Asset, Format, Pack, Placement } from './types';
 import { layoutPack, selectionCorners } from './layout';
+import { lanczos } from './resample';
 
 // ---- Cache de imagens ----
 
@@ -46,6 +47,30 @@ export interface DrawOptions {
   background: string; // 'transparent', cor ou URL de imagem
   selected?: string[];
   hovered?: string | null;
+  /** exportação: reduz cada item com Lanczos e alinha ao pixel (mais lento; a tela usa o drawImage direto) */
+  hq?: boolean;
+}
+
+/** Itens já reduzidos para a exportação (variações em lote reaproveitam). */
+const resizedCache = new Map<string, HTMLCanvasElement>();
+
+function resized(img: HTMLImageElement, dw: number, dh: number): HTMLCanvasElement {
+  const key = `${img.src}|${dw}x${dh}`;
+  let out = resizedCache.get(key);
+  if (!out) {
+    const src = document.createElement('canvas');
+    src.width = img.naturalWidth;
+    src.height = img.naturalHeight;
+    const sctx = src.getContext('2d', { willReadFrequently: true })!;
+    sctx.drawImage(img, 0, 0);
+    out = document.createElement('canvas');
+    out.width = dw;
+    out.height = dh;
+    out.getContext('2d')!.putImageData(lanczos(sctx.getImageData(0, 0, src.width, src.height), dw, dh), 0, 0);
+    if (resizedCache.size >= 64) resizedCache.delete(resizedCache.keys().next().value!);
+    resizedCache.set(key, out);
+  }
+  return out;
 }
 
 /** Aplica a transformação do item (rotação e espelhamento em torno do centro do quadro). */
@@ -81,8 +106,22 @@ export function drawPlacements(ctx: CanvasRenderingContext2D, f: Format, placeme
     const img = getImage(p.asset.src);
     if (!img.complete || !img.naturalWidth) continue;
     const [c0, c1, c2, c3] = p.asset.crop;
+    let source: CanvasImageSource = img;
+    if (o.hq) {
+      const dw = Math.max(1, Math.round((c2 - c0) * p.w * o.scale)), dh = Math.max(1, Math.round((c3 - c1) * p.h * o.scale));
+      source = resized(img, dw, dh);
+      if (!p.rot) {
+        // sem giro: 1 pixel da imagem = 1 pixel do arquivo, sem o borrão de posição fracionária
+        const left = Math.round((p.x + (p.flip ? 1 - c2 : c0) * p.w) * o.scale), top = Math.round((p.y + c1 * p.h) * o.scale);
+        ctx.save();
+        ctx.setTransform(p.flip ? -1 : 1, 0, 0, 1, p.flip ? left + dw : left, top);
+        ctx.drawImage(source, 0, 0);
+        ctx.restore();
+        continue;
+      }
+    }
     withItemTransform(ctx, p, () => {
-      ctx.drawImage(img, c0 * p.w, c1 * p.h, (c2 - c0) * p.w, (c3 - c1) * p.h);
+      ctx.drawImage(source, c0 * p.w, c1 * p.h, (c2 - c0) * p.w, (c3 - c1) * p.h);
     });
   }
   // contorno de seleção (só na tela)
@@ -186,7 +225,7 @@ export async function renderPackBlob(pack: Pack, assets: Map<string, Asset>, f: 
   canvas.width = Math.round(f.width * o.scale);
   canvas.height = Math.round(f.height * o.scale);
   const ctx = canvas.getContext('2d')!;
-  drawPlacements(ctx, f, placements, { scale: o.scale, background: o.background });
+  drawPlacements(ctx, f, placements, { scale: o.scale, background: o.background, hq: true });
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', o.quality));
   if (!blob) throw new Error('O navegador não conseguiu gerar o WebP.');
   return blob;
