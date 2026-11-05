@@ -9,6 +9,9 @@
 //    A lata da frente pode ficar à esquerda (banners de campanha) ou à direita, junto dos brindes
 //    (kits do DS). A sobreposição cresce com a quantidade de latas (25% com 2, ~40% com 5+).
 //  - Muitos produtos (6+): duas fileiras; a de trás mais alta, a da frente mais baixa e por cima.
+//  - Triângulo (lata da frente no centro): a do meio fica na frente e mais baixa; as outras vão para trás
+//    dos dois lados, do mesmo tamanho, cada uma um pouco mais alta e meio escondida atrás da vizinha.
+//    Produtos bem menores que as latas (ex.: Morning Shot) ficam na frente, embaixo, ao lado da do meio.
 //  - Brindes: leque de sachês atrás; caneca na frente do leque; copo/copo térmico encostado na
 //    última lata; mixer ao lado; bolsas à direita sobrepondo as latas; viseira/boné na frente,
 //    embaixo, cobrindo a base das latas.
@@ -31,10 +34,27 @@ const DEPTH_LIFT = 6; // e sobe 6 unidades
 const TWO_ROWS_FROM = 6; // a partir de quantos produtos o modo 'auto' usa duas fileiras
 const FRONT_ROW_DROP = 0.45; // a fileira da frente desce 45% da altura da maior lata
 const FRONT_ROW_SHIFT = 0.15; // e começa 15% da largura da lata mais para a direita
+const TRIANGLE_SMALL = 0.85; // no triângulo, produto com menos de 85% da altura da maior lata vai para a frente
+const TRIANGLE_FRONT_DROP = 0.07; // e a base dele fica 7% da altura da maior lata abaixo da lata do meio
 
 /** Fração da largura da lata de trás escondida pela da frente, conforme a quantidade de latas na fileira. */
-function productOverlap(n: number) {
+function productOverlap(n: number, depth: PackLayout['depth']) {
+  // no triângulo as latas ficam mais juntas (~metade escondida com 5)
+  if (depth === 'centro') return Math.min(0.5, 0.33 + 0.05 * Math.max(0, n - 2));
   return Math.min(0.42, 0.25 + 0.05 * Math.max(0, n - 2));
+}
+
+/** Degraus de profundidade de cada posição da fileira (0 = lata da frente). */
+function rowDepth(i: number, n: number, depth: PackLayout['depth']) {
+  if (depth === 'esquerda') return i;
+  if (depth === 'direita') return n - 1 - i;
+  return Math.abs(i - (n - 1) / 2);
+}
+
+/** No triângulo: produtos que vão para a frente (bem menores que a maior lata). */
+export function triangleFront(sizes: number[]): boolean[] {
+  const max = Math.max(...sizes);
+  return sizes.map((s) => s < TRIANGLE_SMALL * max);
 }
 
 /** Altura visível padrão de cada item (SuperCoffee 380g de frente = 124). */
@@ -145,29 +165,51 @@ export function autoLayout(
   /** `depthOffset`: degraus extras de profundidade (a fileira da frente repete os tamanhos da de trás). */
   const placeRow = (row: Item[], startLeft: number, floor: number, zBase: number, depthOffset = 0) => {
     const n = row.length;
-    const overlap = productOverlap(n);
+    const overlap = productOverlap(n, opts.depth);
+    // no triângulo as latas de trás não diminuem (como nas fotos), só sobem
+    const shrink = opts.depth === 'centro' ? 1 : DEPTH_SCALE;
     let right = -Infinity;
     let prevW = 0;
+    let prevDepth = 0;
     const boxes: RefBox[] = [];
     row.forEach((it, i) => {
       // posição de profundidade: 0 = lata da frente
-      const depth = (opts.depth === 'esquerda' ? i : n - 1 - i) + depthOffset;
-      const visH = sizeOf(it.asset) * DEPTH_SCALE ** depth;
+      const depth = rowDepth(i, n, opts.depth) + depthOffset;
+      const visH = sizeOf(it.asset) * shrink ** depth;
       const { visW } = frameFor(it.asset, visH);
       // a sobreposição é medida na lata que está atrás
-      const behindW = opts.depth === 'esquerda' ? visW : prevW;
+      const behindW = depth >= prevDepth ? visW : prevW;
       const left = i === 0 ? startLeft : right - overlap * behindW;
-      const z = zBase + (opts.depth === 'esquerda' ? -i : i);
+      // mais ao fundo = camada mais atrás; no triângulo par, das duas do meio a da esquerda fica na frente
+      const z = opts.depth === 'esquerda' ? zBase - i : opts.depth === 'direita' ? zBase + i : zBase - depth - i * 0.001;
       const box = place(it.uid, it.asset, visH, left, floor - depth * DEPTH_LIFT, z);
       boxes.push(box);
       right = Math.max(right, visual(box).x1);
       prevW = visW;
+      prevDepth = depth;
     });
     return boxes;
   };
 
   const rows = opts.rows === 'auto' ? (products.length >= TWO_ROWS_FROM ? 2 : 1) : opts.rows;
-  if (rows === 2 && products.length >= 2) {
+  if (opts.depth === 'centro' && products.length) {
+    const front = triangleFront(products.map((p) => sizeOf(p.asset)));
+    const big = products.filter((_, i) => !front[i]);
+    const small = products.filter((_, i) => front[i]);
+    const boxes = placeRow(big, 0, 0, 100);
+    // menores na frente, embaixo, alternando dos dois lados da lata do meio (sem cobrir ela)
+    const centers = boxes.map((b) => (visual(b).x0 + visual(b).x1) / 2);
+    const first = visual(boxes[0]);
+    const step = centers.length > 1 ? (centers[centers.length - 1] - centers[0]) / (centers.length - 1) : 0.6 * (first.x1 - first.x0);
+    const mid = (big.length - 1) / 2;
+    const tallest = Math.max(...boxes.map((b) => visual(b).y1 - visual(b).y0));
+    small.forEach((it, k) => {
+      const slot = mid + (k % 2 ? 1 : -1) * (Math.floor(k / 2) + 1);
+      const visH = sizeOf(it.asset);
+      const { visW } = frameFor(it.asset, visH);
+      place(it.uid, it.asset, visH, centers[0] + slot * step - visW / 2, TRIANGLE_FRONT_DROP * tallest, 150 + k);
+    });
+  } else if (rows === 2 && products.length >= 2) {
     const back = products.slice(0, Math.ceil(products.length / 2));
     const front = products.slice(back.length);
     const backBoxes = placeRow(back, 0, 0, 100);

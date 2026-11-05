@@ -142,11 +142,14 @@ export default function App() {
     setSelection([copy.uid]);
   };
 
-  /** Ao trocar o lado da lata da frente, espelha a ordem dos produtos para a mesma lata continuar na frente. */
+  /**
+   * Ao trocar a lata da frente entre esquerda e direita, espelha a ordem dos produtos para a mesma lata continuar
+   * na frente (no triângulo a ordem da lista é só da esquerda para a direita).
+   */
   const setLayout = (patch: Partial<PackLayout>) => update((p) => {
     const cur = { ...DEFAULT_LAYOUT, ...p.layout };
     let items = p.items;
-    if (patch.depth && patch.depth !== cur.depth) {
+    if (patch.depth && patch.depth !== cur.depth && patch.depth !== 'centro' && cur.depth !== 'centro') {
       const isProduct = (assetId: string) => assetMap.get(assetId)?.kind === 'produto';
       const reversed = items.filter((it) => isProduct(it.assetId)).reverse();
       let k = 0;
@@ -472,6 +475,7 @@ export default function App() {
         pack={pack}
         assets={assetMap}
         allAssets={allAssets}
+        productSize={(a) => defaultVisualHeight(a) * sizeOverride(a)}
         selection={selected}
         onSelect={setSelection}
         onReplace={replaceAsset}

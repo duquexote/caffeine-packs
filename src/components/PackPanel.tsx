@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Asset, ItemAdjust, Pack, PackLayout } from '../types';
-import { FORMATS, DEFAULT_ADJUST, DEFAULT_LAYOUT } from '../layout';
+import { FORMATS, DEFAULT_ADJUST, DEFAULT_LAYOUT, triangleFront } from '../layout';
 import { PROP_LABEL, batchSiblings, optionsFor, propKeys, slugify, switchVariant } from '../catalog';
 import { isImageBackground } from '../render';
 import type { BackgroundImage, Prefs } from '../storage';
@@ -9,6 +9,8 @@ interface Props {
   pack: Pack;
   assets: Map<string, Asset>;
   allAssets: Asset[];
+  /** altura do produto na montagem (com o tamanho padrão do time) */
+  productSize: (a: Asset) => number;
   selection: string[];
   onSelect: (uids: string[]) => void;
   onReplace: (uid: string, asset: Asset) => void;
@@ -55,11 +57,18 @@ export function PackPanel(p: Props) {
   const [uploadingBg, setUploadingBg] = useState(false);
 
   const layout = { ...DEFAULT_LAYOUT, ...p.pack.layout };
-  const twoRows = layout.rows === 2 || (layout.rows === 'auto' && products.length >= 6);
+  const triangle = layout.depth === 'centro';
+  const twoRows = !triangle && (layout.rows === 2 || (layout.rows === 'auto' && products.length >= 6));
   const backCount = twoRows ? Math.ceil(products.length / 2) : products.length;
+  const inFront = triangle && products.length ? triangleFront(products.map((it) => p.productSize(p.assets.get(it.assetId)!))) : [];
 
   /** Onde a lata fica na montagem, para orientar a ordem da lista. */
   const productHint = (i: number) => {
+    if (triangle) {
+      if (inFront[i]) return 'na frente, embaixo';
+      const j = inFront.slice(0, i).filter((f) => !f).length, n = inFront.filter((f) => !f).length;
+      return Math.abs(j - (n - 1) / 2) <= 0.5 ? 'lata da frente (centro)' : `${j + 1}ª da esquerda`;
+    }
     const inBack = i < backCount;
     const n = inBack ? backCount : products.length - backCount;
     const j = inBack ? i : i - backCount;
@@ -80,17 +89,21 @@ export function PackPanel(p: Props) {
                 title="Maior lata à esquerda, as outras atrás (banners de campanha)">Esquerda</button>
               <button className={layout.depth === 'direita' ? 'active' : ''} onClick={() => p.onLayout({ depth: 'direita' })}
                 title="Latas crescendo até os brindes (kits Black Friday)">Junto aos brindes</button>
+              <button className={triangle ? 'active' : ''} onClick={() => p.onLayout({ depth: 'centro' })}
+                title="Triângulo: a lata do meio na frente e as outras atrás dos dois lados; produtos menores vão na frente, embaixo">Centro</button>
             </div>
           </label>
-          <label>
-            <span>Fileiras</span>
-            <div className="segmented">
-              {(['auto', 1, 2] as const).map((r) => (
-                <button key={r} className={layout.rows === r ? 'active' : ''} onClick={() => p.onLayout({ rows: r })}
-                  title={r === 'auto' ? 'Duas fileiras a partir de 6 produtos' : undefined}>{r === 'auto' ? 'Auto' : r}</button>
-              ))}
-            </div>
-          </label>
+          {!triangle && (
+            <label>
+              <span>Fileiras</span>
+              <div className="segmented">
+                {(['auto', 1, 2] as const).map((r) => (
+                  <button key={r} className={layout.rows === r ? 'active' : ''} onClick={() => p.onLayout({ rows: r })}
+                    title={r === 'auto' ? 'Duas fileiras a partir de 6 produtos' : undefined}>{r === 'auto' ? 'Auto' : r}</button>
+                ))}
+              </div>
+            </label>
+          )}
         </div>
       )}
       {!list.length && <p className="muted small">Nenhum. Clique no catálogo para adicionar.</p>}

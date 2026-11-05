@@ -41,8 +41,10 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
 3. **Pack (direita):** troque sabor/tamanho/modelo pelos seletores (o item mantém a posição), reordene com ← →,
    duplique (⧉) para kits com várias latas, gire, espelhe e mude a camada. **Salvar tamanho como padrão** passa a
    valer para todos os sabores daquele produto.
-   - **Lata da frente:** *Esquerda* (padrão dos banners de campanha) ou *Junto aos brindes* (latas crescendo até os
-     brindes, como nos kits Black Friday do DS Army UI). Produtos ficam sempre à esquerda e brindes à direita.
+   - **Lata da frente:** *Esquerda* (padrão dos banners de campanha), *Junto aos brindes* (latas crescendo até os
+     brindes, como nos kits Black Friday do DS Army UI) ou *Centro* (triângulo: a lata do meio na frente e as outras
+     atrás dos dois lados; produtos bem menores, como o Morning Shot, vão na frente, embaixo, ao lado da do meio).
+     Produtos ficam sempre à esquerda e brindes à direita.
    - **Fileiras:** *Auto* usa duas fileiras a partir de 6 produtos (a de trás mais alta, a da frente mais baixa).
 4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270, Quadrado 1:1 360×360), fundo
    (cor, transparente ou uma imagem enviada, que cobre o quadro inteiro de cada formato), resolução (1x–4x) e qualidade.

@@ -7,8 +7,11 @@ export type ItemType =
 
 /** Como os produtos são montados (ver layout.ts). */
 export interface PackLayout {
-  /** lado da lata que fica na frente: 'esquerda' (banners de campanha) ou 'direita' (junto dos brindes) */
-  depth: 'esquerda' | 'direita';
+  /**
+   * onde fica a lata da frente: 'esquerda' (banners de campanha), 'direita' (junto dos brindes) ou
+   * 'centro' (triângulo: a do meio na frente, as outras atrás dos dois lados; produtos menores na frente)
+   */
+  depth: 'esquerda' | 'direita' | 'centro';
   /** fileiras de produtos; 'auto' usa 2 a partir de 6 produtos */
   rows: 'auto' | 1 | 2;
 }
