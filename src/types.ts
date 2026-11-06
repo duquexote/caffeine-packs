@@ -70,6 +70,8 @@ export interface Pack {
   /** opcional para manter compatibilidade com packs salvos antes */
   layout?: PackLayout;
   updatedAt: number;
+  /** updatedAt da versão salva de que este rascunho partiu (para avisar se alguém do time salvou outra depois) */
+  savedAt?: number;
 }
 
 export interface Format {

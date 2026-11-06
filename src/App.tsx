@@ -14,6 +14,7 @@ import { usePackHistory } from './usePackHistory';
 import { CatalogPanel } from './components/CatalogPanel';
 import { PackCanvas } from './components/PackCanvas';
 import { PackPanel } from './components/PackPanel';
+import { SaveDialog } from './components/SaveDialog';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -38,7 +39,7 @@ export default function App() {
   const allAssets = useMemo(() => [...BUILTIN_ASSETS, ...uploads], [uploads]);
   const assetMap = useMemo(() => new Map(allAssets.map((a) => [a.id, a])), [allAssets]);
 
-  const { pack, update, checkpoint, replace, undo, redo, canUndo, canRedo } = usePackHistory(() => loadCurrent() ?? examplePack());
+  const { pack, update, checkpoint, replace, stamp, undo, redo, canUndo, canRedo } = usePackHistory(() => loadCurrent() ?? examplePack());
   const [selection, setSelection] = useState<string[]>([]);
   // itens selecionados que ainda estão no pack (somem ao remover ou desfazer)
   const selected = useMemo(() => selection.filter((u) => pack.items.some((it) => it.uid === u)), [selection, pack.items]);
@@ -233,14 +234,62 @@ export default function App() {
 
   const savedVersion = saved.find((s) => s.id === pack.id);
   const isSaved = !!savedVersion && savedVersion.updatedAt === pack.updatedAt;
+  /** modal de salvar um pack que já está na lista do time; remote: undefined enquanto confere a versão salva */
+  const [saveDialog, setSaveDialog] = useState<{ remote: Pack | null | undefined } | null>(null);
+
+  /** Grava no Supabase e marca o rascunho (e o histórico) como baseado na versão gravada. */
+  const persist = async (p: Pack, fields: Partial<Pack> = {}) => {
+    const out = { ...p, ...fields, savedAt: p.updatedAt };
+    await savePacks([out]);
+    setSaved((s) => [out, ...s.filter((x) => x.id !== out.id)]);
+    stamp({ ...fields, savedAt: out.savedAt });
+    return out;
+  };
+
+  /** Salvar (botão e Ctrl+S): pack novo vai direto; um que já está na lista do time abre o modal. */
   const savePack = async () => {
-    const p = pack;
+    if (saveDialog) return;
+    if (!savedVersion && !pack.savedAt) {
+      try {
+        await persist(pack);
+        setToast({ msg: `Pack "${pack.name}" salvo para o time` });
+      } catch {
+        setToast({ msg: `Não foi possível salvar "${pack.name}"`, error: true });
+      }
+      return;
+    }
+    if (isSaved) {
+      setToast({ msg: `Nada novo para salvar: "${pack.name}" já está salvo para o time` });
+      return;
+    }
+    // confere a versão do time na hora (alguém pode ter salvo ou excluído depois que este pack foi aberto)
+    setSaveDialog({ remote: undefined });
     try {
-      await savePacks([p]);
-      setSaved((s) => [p, ...s.filter((x) => x.id !== p.id)]);
-      setToast({ msg: `Pack "${p.name}" salvo para o time` });
+      const list = await loadPacks();
+      setSaved(list);
+      setSaveDialog((d) => d && { remote: list.find((x) => x.id === pack.id) ?? null });
     } catch {
-      setToast({ msg: `Não foi possível salvar "${p.name}"`, error: true });
+      setSaveDialog((d) => d && { remote: savedVersion ?? null });
+      setToast({ msg: 'Não foi possível conferir a versão salva pelo time', error: true });
+    }
+  };
+  const updateSavedPack = async () => {
+    try {
+      const p = await persist(pack);
+      setSaveDialog(null);
+      setToast({ msg: `"${p.name}" atualizado: o time já vê esta versão` });
+    } catch {
+      setToast({ msg: `Não foi possível salvar "${pack.name}"`, error: true });
+    }
+  };
+  const saveAsNewPack = async (name: string) => {
+    const original = pack.name;
+    try {
+      const p = await persist(pack, { id: uid(), name });
+      setSaveDialog(null);
+      setToast({ msg: `Salvo como novo pack "${p.name}". "${original}" continua como estava.` });
+    } catch {
+      setToast({ msg: `Não foi possível salvar "${name}"`, error: true });
     }
   };
   const toggleMenu = () => {
@@ -248,7 +297,7 @@ export default function App() {
     if (!menuOpen) loadPacks().then(setSaved).catch(warn('Não foi possível atualizar os packs salvos'));
     setMenuOpen(!menuOpen);
   };
-  const openPack = (p: Pack) => { replace(p); setSelection([]); setMenuOpen(false); };
+  const openPack = (p: Pack) => { replace({ ...p, savedAt: p.updatedAt }); setSelection([]); setMenuOpen(false); };
   const deletePack = (p: Pack) => {
     if (!confirm(`Excluir o pack "${p.name}"? Ele some para todo o time.`)) return;
     deleteSavedPack(p.id)
@@ -256,7 +305,7 @@ export default function App() {
       .catch(warn(`Não foi possível excluir "${p.name}"`));
   };
   const duplicatePack = () => {
-    replace({ ...pack, id: uid(), name: pack.name + '-copia', updatedAt: Date.now() });
+    replace({ ...pack, id: uid(), name: pack.name + '-copia', updatedAt: Date.now(), savedAt: undefined });
     setToast({ msg: 'Cópia criada (ainda não salva)' });
   };
   const exportJson = () => {
@@ -347,7 +396,7 @@ export default function App() {
     const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
     const mod = e.ctrlKey || e.metaKey;
     if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); savePack(); return; }
-    if (typing) return;
+    if (typing || saveDialog) return;
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
     if (e.key === 'Escape') { setSelection([]); setMenuOpen(false); return; }
@@ -390,7 +439,10 @@ export default function App() {
             onFocus={checkpoint}
             onChange={(e) => update((p) => ({ ...p, name: e.target.value }), false)}
             title="Nome do pack (vira o nome do arquivo)" />
-          <span className={'save-state' + (isSaved ? ' ok' : '')}>{isSaved ? 'salvo' : savedVersion ? 'alterado' : 'não salvo'}</span>
+          <span className={'save-state' + (isSaved ? ' ok' : '')}
+            title={savedVersion ? `Na lista do time desde ${new Date(savedVersion.updatedAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}` : 'Ainda não está na lista do time'}>
+            {isSaved ? 'salvo' : savedVersion || pack.savedAt ? 'alterações não salvas' : 'ainda não salvo'}
+          </span>
         </div>
         <div className="top-actions">
           <button className="icon-btn" onClick={undo} disabled={!canUndo} title="Desfazer (Ctrl+Z)">↶</button>
@@ -502,6 +554,10 @@ export default function App() {
         onExportVariations={exportVariations}
       />
 
+      {saveDialog && (
+        <SaveDialog pack={pack} remote={saveDialog.remote} takenNames={saved.map((s) => s.name)}
+          onUpdate={updateSavedPack} onSaveAsNew={saveAsNewPack} onClose={() => setSaveDialog(null)} />
+      )}
       {toast && <div className={'toast' + (toast.error ? ' error' : '')}>{toast.msg}</div>}
     </div>
   );

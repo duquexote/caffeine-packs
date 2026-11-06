@@ -223,6 +223,31 @@ img { display: block; }
 .crash code { font-size: 12.5px; color: #9a3412; background: #fff7ed; padding: 8px 10px; border-radius: 6px; }
 .warning { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; padding: 8px 12px; border-radius: 8px; }
 
+/* modal de salvar */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
+  background: rgba(43, 29, 20, 0.45);
+}
+.modal {
+  width: min(460px, 100%); background: var(--panel); border-radius: 14px; padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; gap: 12px;
+}
+.modal h3 { margin: 0; font-size: 17px; overflow-wrap: anywhere; }
+.modal p { margin: 0; line-height: 1.4; }
+.save-option {
+  display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; cursor: pointer;
+  border: 1px solid var(--line-strong); border-radius: var(--radius); background: #fff;
+}
+.save-option.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.save-option input[type='radio'] { accent-color: var(--accent); margin: 3px 0 0; }
+.save-option > span { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.save-option strong { font-size: 13.5px; }
+.save-option input[type='text'] {
+  margin-top: 4px; width: 100%; padding: 6px 8px; border: 1px solid var(--line-strong); border-radius: 6px; background: #fff;
+}
+.warn-text { color: #9a3412; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
 /* painel do pack */
 .panel-scroll { overflow: auto; padding: 14px; display: flex; flex-direction: column; gap: 18px; }
 .pack-group { display: flex; flex-direction: column; gap: 8px; }

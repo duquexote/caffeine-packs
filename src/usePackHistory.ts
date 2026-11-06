@@ -29,6 +29,15 @@ export function usePackHistory(initial: () => Pack) {
 
   const replace = useCallback((pack: Pack) => setH({ pack, past: [], future: [] }), []);
 
+  /**
+   * Aplica campos ao pack e a todo o histórico, sem criar ponto nem mudar updatedAt (ex.: depois de salvar;
+   * em "salvar como novo" troca id e nome, para desfazer não voltar a apontar para o pack antigo).
+   */
+  const stamp = useCallback((fields: Partial<Pack>) => {
+    const fix = (p: Pack) => ({ ...p, ...fields });
+    setH((s) => ({ pack: fix(s.pack), past: s.past.map(fix), future: s.future.map(fix) }));
+  }, []);
+
   const undo = useCallback(() => {
     setH((s) => (s.past.length ? { pack: s.past[s.past.length - 1], past: s.past.slice(0, -1), future: [s.pack, ...s.future] } : s));
   }, []);
@@ -36,5 +45,5 @@ export function usePackHistory(initial: () => Pack) {
     setH((s) => (s.future.length ? { pack: s.future[0], past: [...s.past, s.pack], future: s.future.slice(1) } : s));
   }, []);
 
-  return { pack: h.pack, update, checkpoint, replace, undo, redo, canUndo: h.past.length > 0, canRedo: h.future.length > 0 };
+  return { pack: h.pack, update, checkpoint, replace, stamp, undo, redo, canUndo: h.past.length > 0, canRedo: h.future.length > 0 };
 }
