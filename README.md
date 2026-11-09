@@ -17,9 +17,10 @@ Não há servidor próprio nem login. O que é do time inteiro fica no Supabase 
 pública em `src/storage.ts`):
 
 - **Packs salvos** (tabela `packs`): **Salvar** deixa o pack disponível para todo mundo em **Packs salvos**;
-  excluir remove para todos. Num pack que já está salvo, **Salvar** pergunta se atualiza o existente ou salva como
-  novo (com outro nome, deixando o original como estava) e avisa se alguém do time salvou uma versão mais nova ou
-  excluiu o pack depois que você o abriu.
+  excluir remove para todos. Com um nome que nenhum pack do time usa, **Salvar** grava direto (um pack salvo que foi
+  renomeado vira um pack novo e o original fica como estava). Com o nome de um pack que já está na lista, pergunta se
+  atualiza/substitui esse pack ou salva como novo com outro nome, e avisa se alguém do time salvou uma versão mais
+  nova depois que você o abriu.
 - **Tamanhos padrão** (tabela `pack_sizes`): **Salvar tamanho como padrão** vale para o time inteiro.
 - **PNGs enviados** (tabela `pack_uploads` + bucket público `pack-uploads`): entram no catálogo normal, no objeto
   (brindes) ou na linha (produtos) escolhidos no envio.

@@ -30,6 +30,8 @@ function examplePack(): Pack {
 const blankPack = (): Pack => ({ id: uid(), name: 'novo-pack', items: [], adjust: {}, formatAdjust: {}, updatedAt: Date.now() });
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Nomes de pack iguais, sem diferenciar maiúsculas nem espaços nas pontas. */
+const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 const kb = (n: number) => `${Math.max(1, Math.round(n / 1024))} KB`;
 
 export default function App() {
@@ -234,8 +236,14 @@ export default function App() {
 
   const savedVersion = saved.find((s) => s.id === pack.id);
   const isSaved = !!savedVersion && savedVersion.updatedAt === pack.updatedAt;
-  /** modal de salvar um pack que já está na lista do time; remote: undefined enquanto confere a versão salva */
-  const [saveDialog, setSaveDialog] = useState<{ remote: Pack | null | undefined } | null>(null);
+  // renomeado depois de salvo: Salvar cria outro pack (se o nome novo não for de nenhum pack do time)
+  const renamed = !!savedVersion && !sameName(savedVersion.name, pack.name);
+  /**
+   * Modal de salvar quando o nome é de um pack que já está na lista do time: o próprio ('own') ou outro pack
+   * com o mesmo nome ('other'). `remote` é esse pack, como está no Supabase agora.
+   */
+  const [saveDialog, setSaveDialog] = useState<{ kind: 'own' | 'other'; remote: Pack } | null>(null);
+  const [saving, setSaving] = useState(false);
 
   /** Grava no Supabase e marca o rascunho (e o histórico) como baseado na versão gravada. */
   const persist = async (p: Pack, fields: Partial<Pack> = {}) => {
@@ -246,38 +254,54 @@ export default function App() {
     return out;
   };
 
-  /** Salvar (botão e Ctrl+S): pack novo vai direto; um que já está na lista do time abre o modal. */
+  /**
+   * Salvar (botão e Ctrl+S). Nome que nenhum pack do time usa: salva direto (se era um pack salvo e foi renomeado,
+   * vira um pack novo e o original fica como estava). Nome que já existe na lista: abre o modal.
+   */
   const savePack = async () => {
-    if (saveDialog) return;
-    if (!savedVersion && !pack.savedAt) {
-      try {
-        await persist(pack);
-        setToast({ msg: `Pack "${pack.name}" salvo para o time` });
-      } catch {
-        setToast({ msg: `Não foi possível salvar "${pack.name}"`, error: true });
-      }
-      return;
-    }
+    if (saveDialog || saving) return;
     if (isSaved) {
       setToast({ msg: `Nada novo para salvar: "${pack.name}" já está salvo para o time` });
       return;
     }
-    // confere a versão do time na hora (alguém pode ter salvo ou excluído depois que este pack foi aberto)
-    setSaveDialog({ remote: undefined });
+    setSaving(true);
     try {
-      const list = await loadPacks();
-      setSaved(list);
-      setSaveDialog((d) => d && { remote: list.find((x) => x.id === pack.id) ?? null });
+      // a lista do time na hora: alguém pode ter salvo, renomeado ou excluído packs desde que a página abriu
+      let list = saved;
+      try {
+        list = await loadPacks();
+        setSaved(list);
+      } catch {
+        /* sem conferir: segue com a lista que já tinha */
+      }
+      const namesakes = list.filter((s) => sameName(s.name, pack.name));
+      const target = namesakes.find((s) => s.id === pack.id) ?? namesakes[0];
+      if (target) {
+        setSaveDialog({ kind: target.id === pack.id ? 'own' : 'other', remote: target });
+        return;
+      }
+      const original = list.find((s) => s.id === pack.id);
+      if (original) {
+        const p = await persist(pack, { id: uid() });
+        setToast({ msg: `Salvo como novo pack "${p.name}". "${original.name}" continua como estava.` });
+      } else {
+        await persist(pack);
+        setToast({ msg: `Pack "${pack.name}" salvo para o time` });
+      }
     } catch {
-      setSaveDialog((d) => d && { remote: savedVersion ?? null });
-      setToast({ msg: 'Não foi possível conferir a versão salva pelo time', error: true });
+      setToast({ msg: `Não foi possível salvar "${pack.name}"`, error: true });
+    } finally {
+      setSaving(false);
     }
   };
-  const updateSavedPack = async () => {
+  /** No modal: grava por cima do pack do time com este nome (o próprio ou outro com o mesmo nome). */
+  const replaceSavedPack = async () => {
+    if (!saveDialog) return;
+    const { kind, remote } = saveDialog;
     try {
-      const p = await persist(pack);
+      const p = await persist(pack, kind === 'other' ? { id: remote.id } : {});
       setSaveDialog(null);
-      setToast({ msg: `"${p.name}" atualizado: o time já vê esta versão` });
+      setToast({ msg: kind === 'own' ? `"${p.name}" atualizado: o time já vê esta versão` : `"${p.name}" do time substituído por este pack` });
     } catch {
       setToast({ msg: `Não foi possível salvar "${pack.name}"`, error: true });
     }
@@ -440,8 +464,12 @@ export default function App() {
             onChange={(e) => update((p) => ({ ...p, name: e.target.value }), false)}
             title="Nome do pack (vira o nome do arquivo)" />
           <span className={'save-state' + (isSaved ? ' ok' : '')}
-            title={savedVersion ? `Na lista do time desde ${new Date(savedVersion.updatedAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}` : 'Ainda não está na lista do time'}>
-            {isSaved ? 'salvo' : savedVersion || pack.savedAt ? 'alterações não salvas' : 'ainda não salvo'}
+            title={renamed ? `"${savedVersion!.name}" continua salvo como está; este nome vira outro pack`
+              : savedVersion ? `Na lista do time desde ${new Date(savedVersion.updatedAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}`
+              : 'Ainda não está na lista do time'}>
+            {isSaved ? 'salvo'
+              : renamed && !saved.some((s) => sameName(s.name, pack.name)) ? 'nome novo: salvar cria outro pack'
+              : savedVersion || pack.savedAt ? 'alterações não salvas' : 'ainda não salvo'}
           </span>
         </div>
         <div className="top-actions">
@@ -449,7 +477,7 @@ export default function App() {
           <button className="icon-btn" onClick={redo} disabled={!canRedo} title="Refazer (Ctrl+Shift+Z)">↷</button>
           <button className="btn ghost" onClick={() => { replace(blankPack()); setSelection([]); }}>Novo</button>
           <button className="btn ghost" onClick={duplicatePack}>Duplicar</button>
-          <button className="btn" onClick={savePack} title="Ctrl+S">Salvar</button>
+          <button className="btn" onClick={savePack} disabled={saving} title="Ctrl+S">{saving ? 'Salvando…' : 'Salvar'}</button>
           <div className="menu-wrap">
             <button className="btn ghost" onClick={toggleMenu}>Packs salvos ({saved.length}) ▾</button>
             {menuOpen && (
@@ -555,8 +583,8 @@ export default function App() {
       />
 
       {saveDialog && (
-        <SaveDialog pack={pack} remote={saveDialog.remote} takenNames={saved.map((s) => s.name)}
-          onUpdate={updateSavedPack} onSaveAsNew={saveAsNewPack} onClose={() => setSaveDialog(null)} />
+        <SaveDialog pack={pack} kind={saveDialog.kind} remote={saveDialog.remote} takenNames={saved.map((s) => s.name)}
+          onReplace={replaceSavedPack} onSaveAsNew={saveAsNewPack} onClose={() => setSaveDialog(null)} />
       )}
       {toast && <div className={'toast' + (toast.error ? ' error' : '')}>{toast.msg}</div>}
     </div>
