@@ -181,6 +181,13 @@ export function PackPanel(p: Props) {
             </p>
           </div>
         )}
+        {p.pack.pin && known.length > 0 && (
+          <p className="muted small pin-note">
+            Posições e zoom mantidos depois de remover itens.{' '}
+            <button className="link-btn" onClick={() => p.onLayout({})}
+              title="Monta de novo automaticamente, como ao adicionar um item">Remontar automaticamente</button>
+          </p>
+        )}
         {renderGroup('Produtos', products)}
         {renderGroup('Brindes', gifts)}
 

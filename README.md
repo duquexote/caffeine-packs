@@ -48,6 +48,8 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
      brindes, como nos kits Black Friday do DS Army UI) ou *Centro* (triângulo: a lata do meio na frente e as outras
      atrás dos dois lados; produtos bem menores, como o Morning Shot, vão na frente, embaixo, ao lado da do meio).
      Produtos ficam sempre à esquerda e brindes à direita.
+   - **Remover** um item não remonta o pack: o resto fica onde está e o zoom não muda. Adicionar, reordenar ou
+     mudar a montagem (ou **Remontar automaticamente**) monta tudo de novo.
    - **Fileiras:** *Auto* usa duas fileiras a partir de 6 produtos (a de trás mais alta, a da frente mais baixa).
 4. **Exportar:** escolha formatos (Ecommerce 360×180, Prime 386×257, Prime 380×270, Quadrado 1:1 360×360), fundo
    (cor, transparente ou uma imagem enviada, que cobre o quadro inteiro de cada formato), resolução (1x–4x) e qualidade.

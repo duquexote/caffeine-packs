@@ -15,7 +15,7 @@
 //  - Brindes: leque de sachês atrás; caneca na frente do leque; copo/copo térmico encostado na
 //    última lata; mixer ao lado; bolsas à direita sobrepondo as latas; viseira/boné na frente,
 //    embaixo, cobrindo a base das latas.
-import type { Asset, Format, FormatAdjust, ItemAdjust, ItemType, Pack, PackLayout, Placement } from './types';
+import type { Asset, Format, FormatAdjust, ItemAdjust, ItemType, Pack, PackLayout, PackPin, Placement } from './types';
 
 export const FORMATS: Format[] = [
   { id: 'ecom', label: 'Ecommerce', width: 360, height: 180, suffix: '', margin: { x: 0.12, top: 0.13, bottom: 0.09 } },
@@ -310,10 +310,10 @@ export interface FrameTransform {
   oy: number;
 }
 
-/** Enquadramento automático da composição (sem ajustes manuais) no formato. */
-export function fitTransform(boxes: RefBox[], f: Format, fa: FormatAdjust = DEFAULT_FORMAT_ADJUST): FrameTransform {
-  if (!boxes.length) return { s: 1, ox: 0, oy: 0 };
-  const b = bounds(boxes);
+/** Enquadramento automático da composição (sem ajustes manuais) no formato; `fixed` usa outra área (ver PackPin). */
+function fitTransform(boxes: RefBox[], f: Format, fa: FormatAdjust = DEFAULT_FORMAT_ADJUST, fixed?: PackPin['bounds']): FrameTransform {
+  if (!boxes.length && !fixed) return { s: 1, ox: 0, oy: 0 };
+  const b = fixed ?? bounds(boxes);
   const bw = b.x1 - b.x0, bh = b.y1 - b.y0;
   const availW = f.width * (1 - 2 * f.margin.x);
   const availH = f.height * (1 - f.margin.top - f.margin.bottom);
@@ -323,6 +323,39 @@ export function fitTransform(boxes: RefBox[], f: Format, fa: FormatAdjust = DEFA
   return { s, ox: cx - ((b.x0 + b.x1) / 2) * s, oy: cy - ((b.y0 + b.y1) / 2) * s };
 }
 
+/** Caixas de cada item antes dos ajustes manuais: montagem automática, ou a congelada (pack.pin). */
+function baseBoxes(pack: Pack, assets: Map<string, Asset>, sizeOverride: (a: Asset) => number = () => 1): RefBox[] {
+  const items = pack.items
+    .map((it) => ({ uid: it.uid, asset: assets.get(it.assetId) }))
+    .filter((it): it is { uid: string; asset: Asset } => !!it.asset);
+  const boxes = autoLayout(items, sizeOverride, { ...DEFAULT_LAYOUT, ...pack.layout });
+  if (!pack.pin) return boxes;
+  return boxes.map((b) => {
+    const p = pack.pin!.items[b.uid];
+    if (!p) return b;
+    // mesma base e mesma altura relativa: trocar o sabor (ou o tamanho) mantém o item no lugar
+    const [bx0, , bx1, by1] = b.asset.bbox;
+    const visH = defaultVisualHeight(b.asset) * sizeOverride(b.asset) * p.k;
+    const h = visH / (by1 - b.asset.bbox[1]);
+    const w = h * b.asset.aspect;
+    return { ...b, x: p.ax - ((bx0 + bx1) / 2) * w, y: p.ay - by1 * h, h, z: p.z };
+  });
+}
+
+/**
+ * Congela a montagem atual (antes de remover itens): cada item guarda onde está e o enquadramento continua o mesmo,
+ * então o que ficar não se mexe.
+ */
+export function pinLayout(pack: Pack, assets: Map<string, Asset>, sizeOverride: (a: Asset) => number = () => 1): PackPin {
+  const boxes = baseBoxes(pack, assets, sizeOverride);
+  const items: PackPin['items'] = {};
+  for (const b of boxes) {
+    const v = visual(b);
+    items[b.uid] = { ax: (v.x0 + v.x1) / 2, ay: v.y1, k: (v.y1 - v.y0) / (defaultVisualHeight(b.asset) * sizeOverride(b.asset)), z: b.z };
+  }
+  return { bounds: pack.pin?.bounds ?? bounds(boxes), items };
+}
+
 /** Posições finais de um pack em um formato, já com ajustes manuais. */
 export function layoutPack(
   pack: Pack,
@@ -330,11 +363,8 @@ export function layoutPack(
   f: Format,
   sizeOverride?: (a: Asset) => number,
 ): { placements: Placement[]; t: FrameTransform } {
-  const items = pack.items
-    .map((it) => ({ uid: it.uid, asset: assets.get(it.assetId) }))
-    .filter((it): it is { uid: string; asset: Asset } => !!it.asset);
-  const boxes = autoLayout(items, sizeOverride, { ...DEFAULT_LAYOUT, ...pack.layout });
-  const t = fitTransform(boxes, f, pack.formatAdjust[f.id]);
+  const boxes = baseBoxes(pack, assets, sizeOverride);
+  const t = fitTransform(boxes, f, pack.formatAdjust[f.id], pack.pin?.bounds);
   const placements = boxes.map((b): Placement => {
     const adj = pack.adjust[b.uid] ?? DEFAULT_ADJUST;
     // escala manual em torno da base central visível (o item continua "apoiado" no chão)

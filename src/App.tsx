@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Asset, Format, FormatAdjust, ItemAdjust, ItemType, Pack, PackLayout } from './types';
 import { BUILTIN_ASSETS, shapeKey, slugify, variantSlug } from './catalog';
 import {
-  DEFAULT_ADJUST, DEFAULT_LAYOUT, FORMATS, defaultVisualHeight, giftOrder, layoutPack, scaleItems, selectionBase,
+  DEFAULT_ADJUST, DEFAULT_LAYOUT, FORMATS, defaultVisualHeight, giftOrder, layoutPack, pinLayout, scaleItems, selectionBase,
 } from './layout';
 import { downloadBlob, isImageBackground, renderPackBlob, zipFiles } from './render';
 import {
@@ -126,7 +126,8 @@ export default function App() {
         }
         items.splice(idx, 0, item);
       }
-      return { ...p, items };
+      // item novo: volta a montar tudo automaticamente
+      return { ...p, items, pin: undefined };
     });
     setSelection([item.uid]);
   };
@@ -140,7 +141,7 @@ export default function App() {
       copy.assetId = p.items[i].assetId;
       const items = [...p.items];
       items.splice(i + 1, 0, copy);
-      return { ...p, items };
+      return { ...p, items, pin: undefined };
     });
     setSelection([copy.uid]);
   };
@@ -158,17 +159,20 @@ export default function App() {
       let k = 0;
       items = items.map((it) => (isProduct(it.assetId) ? reversed[k++] : it));
     }
-    return { ...p, items, layout: { ...cur, ...patch } };
+    return { ...p, items, layout: { ...cur, ...patch }, pin: undefined };
   });
 
   const replaceAsset = (itemUid: string, asset: Asset) =>
     update((p) => ({ ...p, items: p.items.map((it) => (it.uid === itemUid ? { ...it, assetId: asset.id } : it)) }));
 
+  /** Remove sem remontar: o que fica não muda de lugar nem de tamanho e o enquadramento (zoom) continua o mesmo. */
   const removeItems = (uids: string[]) => {
     update((p) => {
       const adjust = { ...p.adjust };
       for (const u of uids) delete adjust[u];
-      return { ...p, items: p.items.filter((it) => !uids.includes(it.uid)), adjust };
+      const pin = pinLayout(p, assetMap, sizeOverride);
+      for (const u of uids) delete pin.items[u];
+      return { ...p, items: p.items.filter((it) => !uids.includes(it.uid)), adjust, pin };
     });
     setSelection((s) => s.filter((u) => !uids.includes(u)));
   };
@@ -182,7 +186,7 @@ export default function App() {
     while (j >= 0 && j < items.length && assetMap.get(items[j].assetId)?.kind !== kind) j += dir;
     if (j < 0 || j >= items.length) return p;
     [items[i], items[j]] = [items[j], items[i]];
-    return { ...p, items };
+    return { ...p, items, pin: undefined };
   });
 
   const adjustItems = (adjs: Record<string, ItemAdjust>, push: boolean) =>

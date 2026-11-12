@@ -61,6 +61,17 @@ export interface FormatAdjust {
   dy: number;
 }
 
+/**
+ * Montagem congelada depois de remover itens: os que ficaram não mudam de lugar nem de tamanho e o enquadramento
+ * continua o mesmo. Unidades de referência; some ao adicionar, reordenar ou mudar a montagem.
+ */
+export interface PackPin {
+  /** área usada no enquadramento (a de antes da remoção) */
+  bounds: { x0: number; y0: number; x1: number; y1: number };
+  /** base central visível, altura visível relativa ao tamanho padrão do produto e camada de cada item */
+  items: Record<string, { ax: number; ay: number; k: number; z: number }>;
+}
+
 export interface Pack {
   id: string;
   name: string;
@@ -69,6 +80,7 @@ export interface Pack {
   formatAdjust: Record<string, FormatAdjust>;
   /** opcional para manter compatibilidade com packs salvos antes */
   layout?: PackLayout;
+  pin?: PackPin;
   updatedAt: number;
   /** updatedAt da versão salva de que este rascunho partiu (para avisar se alguém do time salvou outra depois) */
   savedAt?: number;
