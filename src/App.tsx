@@ -15,6 +15,7 @@ import { CatalogPanel } from './components/CatalogPanel';
 import { PackCanvas } from './components/PackCanvas';
 import { PackPanel } from './components/PackPanel';
 import { SaveDialog } from './components/SaveDialog';
+import { SavedGallery } from './components/SavedGallery';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -322,10 +323,25 @@ export default function App() {
   };
   const toggleMenu = () => {
     // ao abrir, busca os packs que o time salvou desde que a página carregou
-    if (!menuOpen) loadPacks().then(setSaved).catch(warn('Não foi possível atualizar os packs salvos'));
+    if (!menuOpen) refreshSaved();
     setMenuOpen(!menuOpen);
   };
-  const openPack = (p: Pack) => { replace({ ...p, savedAt: p.updatedAt }); setSelection([]); setMenuOpen(false); };
+  /** Abre um pack salvo no lugar do que está em edição (pergunta antes de perder alterações não salvas). */
+  const openPack = (p: Pack) => {
+    setMenuOpen(false);
+    if (p.id === pack.id && isSaved) {
+      setToast({ msg: `"${p.name}" já está aberto` });
+      return;
+    }
+    const dirty = !isSaved && pack.items.length > 0;
+    const question = p.id === pack.id
+      ? `Descartar as alterações e voltar à versão salva de "${p.name}"?`
+      : `"${pack.name}" tem alterações não salvas. Abrir "${p.name}" mesmo assim?`;
+    if (dirty && !confirm(question)) return;
+    replace({ ...p, savedAt: p.updatedAt });
+    setSelection([]);
+  };
+  const refreshSaved = () => loadPacks().then(setSaved).catch(warn('Não foi possível atualizar os packs salvos'));
   const deletePack = (p: Pack) => {
     if (!confirm(`Excluir o pack "${p.name}"? Ele some para todo o time.`)) return;
     deleteSavedPack(p.id)
@@ -587,6 +603,10 @@ export default function App() {
         onExport={(zip) => exportPack(zip)}
         onExportVariations={exportVariations}
       />
+
+      <SavedGallery packs={saved} assets={assetMap} sizeOverride={sizeOverride} background={prefs.background}
+        currentId={pack.id} open={prefs.showSaved} onToggle={() => setPrefs({ ...prefs, showSaved: !prefs.showSaved })}
+        onOpen={openPack} onRefresh={refreshSaved} />
 
       {saveDialog && (
         <SaveDialog pack={pack} kind={saveDialog.kind} remote={saveDialog.remote} takenNames={saved.map((s) => s.name)}

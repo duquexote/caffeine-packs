@@ -56,7 +56,9 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
    (WebP ou PNG) e qualidade (só WebP; PNG é sempre sem perda).
    Na exportação cada item é reduzido com Lanczos3 (como o Figma) e a qualidade 100 grava WebP sem perda, igual ao
    PNG do Figma; abaixo de 100 o arquivo fica bem menor, mas o WebP borra um pouco texto e bordas coloridas. O nome do arquivo vem do nome do pack (`nome.webp`, `nome-PRM.webp`, `nome-1x1.webp`).
-5. **Variações em lote:** selecione um item e abra *Gerar variações deste item em lote*. Sai um .zip com o pack em
+5. **Packs salvos (rodapé):** miniaturas de todos os packs do time, com busca pelo nome. Clique para abrir (pergunta
+   antes se o pack em edição tem alterações não salvas); **▾ Packs salvos** recolhe a faixa.
+6. **Variações em lote:** selecione um item e abra *Gerar variações deste item em lote*. Sai um .zip com o pack em
    cada sabor escolhido, em todos os formatos marcados.
 
 Atalhos: `Ctrl+Z` / `Ctrl+Shift+Z` desfazer/refazer · `Ctrl+S` salvar · `Ctrl+A` seleciona todos ·
