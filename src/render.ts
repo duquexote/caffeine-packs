@@ -209,9 +209,14 @@ export function hitTest(placements: Placement[], x: number, y: number): Placemen
 
 // ---- Exportação ----
 
+/** Tipo do arquivo exportado (também é a extensão). */
+export type FileType = 'webp' | 'png';
+
 export interface ExportOptions {
   scale: number;
+  /** só para WebP (PNG é sempre sem perda) */
   quality: number;
+  type?: FileType;
   background: string;
   sizeOverride?: (a: Asset) => number;
 }
@@ -226,8 +231,9 @@ export async function renderPackBlob(pack: Pack, assets: Map<string, Asset>, f: 
   canvas.height = Math.round(f.height * o.scale);
   const ctx = canvas.getContext('2d')!;
   drawPlacements(ctx, f, placements, { scale: o.scale, background: o.background, hq: true });
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', o.quality));
-  if (!blob) throw new Error('O navegador não conseguiu gerar o WebP.');
+  const type = o.type ?? 'webp';
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, `image/${type}`, o.quality));
+  if (!blob) throw new Error(`O navegador não conseguiu gerar o ${type.toUpperCase()}.`);
   return blob;
 }
 

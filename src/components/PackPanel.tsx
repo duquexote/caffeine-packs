@@ -45,7 +45,9 @@ const BACKGROUNDS = [
   { value: 'transparent', label: 'Transparente' },
 ];
 
-const isAdjusted = (adj: ItemAdjust | undefined) => !!adj && !!(adj.dx || adj.dy || adj.scale !== 1 || adj.rot || adj.flip || adj.z);
+const fileLabel = (t: Prefs['fileType']) => (t === 'webp' ? 'WebP' : 'PNG');
+
+const isAdjusted =(adj: ItemAdjust | undefined) => !!adj && !!(adj.dx || adj.dy || adj.scale !== 1 || adj.rot || adj.flip || adj.z);
 
 export function PackPanel(p: Props) {
   // como no canvas, itens fora do catálogo ficam de fora (uploads do time ainda carregando ou removidos)
@@ -257,16 +259,32 @@ export function PackPanel(p: Props) {
             </span>
           </div>
           <div className="field">
-            <span>Qualidade WebP: {p.prefs.quality === 1 ? '100 (sem perda)' : Math.round(p.prefs.quality * 100)}</span>
-            <input type="range" min={0.6} max={1} step={0.01} value={p.prefs.quality}
-              onChange={(e) => p.setPrefs({ ...p.prefs, quality: +e.target.value })} />
+            <span>Arquivo</span>
+            <div className="segmented">
+              {(['webp', 'png'] as const).map((t) => (
+                <button key={t} className={p.prefs.fileType === t ? 'active' : ''} onClick={() => p.setPrefs({ ...p.prefs, fileType: t })}
+                  title={t === 'webp' ? 'Mais leve, pronto para a Shopify' : 'Sem perda, para abrir em qualquer programa (arquivo maior)'}>
+                  {fileLabel(t)}
+                </button>
+              ))}
+            </div>
           </div>
+          {p.prefs.fileType === 'webp' ? (
+            <div className="field">
+              <span>Qualidade WebP: {p.prefs.quality === 1 ? '100 (sem perda)' : Math.round(p.prefs.quality * 100)}</span>
+              <input type="range" min={0.6} max={1} step={0.01} value={p.prefs.quality}
+                onChange={(e) => p.setPrefs({ ...p.prefs, quality: +e.target.value })} />
+            </div>
+          ) : (
+            <span className="muted small">PNG é sempre sem perda.</span>
+          )}
           <div className="filenames">
-            {chosenFormats.map((f) => <code key={f.id}>{slug}{f.suffix}.webp</code>)}
+            {chosenFormats.map((f) => <code key={f.id}>{slug}{f.suffix}.{p.prefs.fileType}</code>)}
           </div>
           <div className="row">
             <button className="btn primary grow" disabled={!!p.exporting || !p.pack.items.length || !chosenFormats.length} onClick={() => p.onExport(false)}>
-              {p.exporting === 'files' ? 'Gerando…' : `Baixar ${chosenFormats.length > 1 ? `${chosenFormats.length} WebPs` : 'WebP'}`}
+              {p.exporting === 'files' ? 'Gerando…'
+                : `Baixar ${chosenFormats.length > 1 ? `${chosenFormats.length} ${fileLabel(p.prefs.fileType)}s` : fileLabel(p.prefs.fileType)}`}
             </button>
             <button className="btn ghost" disabled={!!p.exporting || !p.pack.items.length || !chosenFormats.length} onClick={() => p.onExport(true)}>
               {p.exporting === 'zip' ? '…' : '.zip'}

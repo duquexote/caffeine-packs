@@ -96,9 +96,11 @@ export interface Prefs {
   scale: number;
   quality: number;
   background: string;
+  /** arquivo exportado: WebP (Shopify) ou PNG */
+  fileType: 'webp' | 'png';
 }
 /** qualidade 1 = WebP sem perda (igual ao PNG do Figma); abaixo disso o WebP borra bordas coloridas e texto */
-export const DEFAULT_PREFS: Prefs = { formats: ['ecom', 'prime'], scale: 3, quality: 1, background: '#F4F0E9' };
+export const DEFAULT_PREFS: Prefs = { formats: ['ecom', 'prime'], scale: 3, quality: 1, background: '#F4F0E9', fileType: 'webp' };
 export const loadPrefs = (): Prefs => {
   const p = { ...DEFAULT_PREFS, ...read<Partial<Prefs>>(KEY_PREFS, {}) };
   // 0.9 era o padrão antigo (com perda): quem nunca mexeu passa para sem perda

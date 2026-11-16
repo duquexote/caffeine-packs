@@ -366,7 +366,8 @@ export default function App() {
   // ---- exportação ----
 
   const slug = slugify(pack.name) || 'pack';
-  const exportOpts = { scale: prefs.scale, quality: prefs.quality, background: prefs.background, sizeOverride };
+  const exportOpts = { scale: prefs.scale, quality: prefs.quality, background: prefs.background, type: prefs.fileType, sizeOverride };
+  const ext = prefs.fileType;
   const chosenFormats = FORMATS.filter((f) => prefs.formats.includes(f.id));
 
   // só depois de carregar os uploads do time (antes disso, os itens enviados ainda não estão no catálogo)
@@ -395,7 +396,7 @@ export default function App() {
     const fs = only ? [only] : chosenFormats;
     return runExport(zip ? 'zip' : 'files', async () => {
       const files = [];
-      for (const f of fs) files.push({ name: `${slug}${f.suffix}.webp`, blob: await renderPackBlob(pack, assetMap, f, exportOpts) });
+      for (const f of fs) files.push({ name: `${slug}${f.suffix}.${ext}`, blob: await renderPackBlob(pack, assetMap, f, exportOpts) });
       return files;
     }, zip ? `${slug}.zip` : null);
   };
@@ -410,7 +411,7 @@ export default function App() {
       used.add(vs);
       const variant: Pack = { ...pack, items: pack.items.map((it) => (it.uid === itemUid ? { ...it, assetId: id } : it)) };
       for (const f of chosenFormats.length ? chosenFormats : [FORMATS[0]]) {
-        files.push({ name: `${slug}-${vs}${f.suffix}.webp`, blob: await renderPackBlob(variant, assetMap, f, exportOpts) });
+        files.push({ name: `${slug}-${vs}${f.suffix}.${ext}`, blob: await renderPackBlob(variant, assetMap, f, exportOpts) });
       }
     }
     return files;
@@ -544,6 +545,7 @@ export default function App() {
             onAdjustItems={adjustItems}
             onAdjustFormat={adjustFormat(f.id)}
             onExport={() => exportPack(false, f)}
+            fileLabel={ext.toUpperCase()}
             exporting={!!exporting}
             maxHeightFraction={visibleFormats.length > 1 ? 0.36 : 0.7}
           />

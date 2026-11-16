@@ -16,6 +16,8 @@ interface Props {
   onAdjustItems: (adjs: Record<string, ItemAdjust>, push: boolean) => void;
   onAdjustFormat: (fa: FormatAdjust, push: boolean) => void;
   onExport: () => void;
+  /** tipo do arquivo do botão de baixar (WEBP, PNG) */
+  fileLabel: string;
   exporting: boolean;
   /** fração da altura da janela que o canvas pode ocupar */
   maxHeightFraction: number;
@@ -238,7 +240,7 @@ export function PackCanvas(p: Props) {
           {moved && (
             <button className="link-btn" onClick={() => p.onAdjustFormat(DEFAULT_FORMAT_ADJUST, true)}>Recentralizar</button>
           )}
-          <button className="btn small" onClick={p.onExport} disabled={p.exporting || !p.pack.items.length}>Baixar WebP</button>
+          <button className="btn small" onClick={p.onExport} disabled={p.exporting || !p.pack.items.length}>Baixar {p.fileLabel === 'WEBP' ? 'WebP' : p.fileLabel}</button>
         </div>
       </header>
       <div ref={wrapRef} className="canvas-area">
