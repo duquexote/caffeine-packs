@@ -60,6 +60,8 @@ preferências de exportação continuam no navegador de cada um. **Packs salvos 
    antes se o pack em edição tem alterações não salvas); **▾ Packs salvos** recolhe a faixa.
    **Trocar item em massa…** troca um brinde (ou produto) por outro em todos os packs salvos que o têm, no mesmo lugar
    e com os mesmos ajustes; mostra a prévia de cada pack, deixa desmarcar alguns e dá para desfazer logo depois.
+   **Exportar em massa…** baixa um .zip com os packs escolhidos em todos os formatos marcados (mesmas configurações de
+   Exportar), opcionalmente com uma pasta por pack.
 6. **Variações em lote:** selecione um item e abra *Gerar variações deste item em lote*. Sai um .zip com o pack em
    cada sabor escolhido, em todos os formatos marcados.
 

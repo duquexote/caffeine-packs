@@ -16,6 +16,8 @@ interface Props {
   onRefresh: () => void;
   /** troca em massa de um item nos packs salvos */
   onBulkReplace: () => void;
+  /** exportar vários packs salvos num .zip */
+  onMassExport: () => void;
 }
 
 const THUMB_W = 200;
@@ -41,6 +43,8 @@ export function SavedGallery(p: Props) {
             <button className="link-btn" onClick={p.onRefresh} title="Buscar os packs que o time salvou agora">Atualizar</button>
             <button className="link-btn" onClick={p.onBulkReplace} disabled={!p.packs.length}
               title="Trocar um brinde (ou produto) por outro em vários packs salvos de uma vez">Trocar item em massa…</button>
+            <button className="link-btn" onClick={p.onMassExport} disabled={!p.packs.length}
+              title="Baixar vários packs salvos de uma vez, num .zip">Exportar em massa…</button>
           </>
         )}
       </header>

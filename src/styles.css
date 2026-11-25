@@ -370,3 +370,6 @@ input[type='range'] { width: 100%; accent-color: var(--accent); }
 .bulk-item input { position: absolute; top: 10px; left: 10px; accent-color: var(--accent); }
 .bulk-item canvas { display: block; border-radius: 6px; background: #f7f3ed; }
 .bulk-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.progress { position: relative; height: 26px; border-radius: 8px; background: var(--accent-soft); overflow: hidden; }
+.progress > div { position: absolute; inset: 0 auto 0 0; background: #f5b48f; transition: width 0.2s; }
+.progress > span { position: relative; display: block; line-height: 26px; padding: 0 10px; color: var(--brown); }

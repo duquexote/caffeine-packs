@@ -17,6 +17,7 @@ import { PackPanel } from './components/PackPanel';
 import { SaveDialog } from './components/SaveDialog';
 import { SavedGallery } from './components/SavedGallery';
 import { BulkReplaceDialog } from './components/BulkReplaceDialog';
+import { MassExportDialog } from './components/MassExportDialog';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -459,7 +460,49 @@ export default function App() {
     }, zip ? `${slug}.zip` : null);
   };
 
-  const exportVariations = (itemUid: string, ids: string[]) => runExport('batch', async () => {
+  // ---- exportação em massa dos packs salvos ----
+
+  const [massExportOpen, setMassExportOpen] = useState(false);
+  const massFormats = chosenFormats.length ? chosenFormats : [];
+  const bgLabel = prefs.background === 'transparent' ? 'transparente' : isImageBackground(prefs.background) ? 'imagem' : prefs.background;
+  const massSettings = `${massFormats.map((f) => f.label).join(', ') || 'nenhum formato'} · ${prefs.scale}x · ${ext.toUpperCase()}`
+    + `${ext === 'webp' ? (prefs.quality === 1 ? ' sem perda' : ` ${Math.round(prefs.quality * 100)}`) : ''} · fundo ${bgLabel}`;
+  /** Gera os packs escolhidos em todos os formatos marcados e baixa um .zip só (`folders`: uma pasta por pack). */
+  const exportSavedPacks = async (packs: Pack[], folders: boolean, onProgress: (done: number, total: number) => void, cancelled: () => boolean) => {
+    const total = packs.length * massFormats.length;
+    const files: { name: string; blob: Blob }[] = [];
+    const used = new Set<string>();
+    setExporting('mass');
+    try {
+      for (const p of packs) {
+        // packs com o mesmo nome não se sobrescrevem no .zip
+        const slugP = slugify(p.name) || 'pack';
+        let base = slugP;
+        for (let n = 2; used.has(base); n++) base = `${slugP}-${n}`;
+        used.add(base);
+        for (const f of massFormats) {
+          if (cancelled()) {
+            setToast({ msg: 'Exportação em massa interrompida' });
+            return false;
+          }
+          files.push({ name: `${folders ? base + '/' : ''}${base}${f.suffix}.${ext}`, blob: await renderPackBlob(p, assetMap, f, exportOpts) });
+          onProgress(files.length, total);
+        }
+      }
+      const zipName = `packs-${new Date().toISOString().slice(0, 10)}.zip`;
+      const z = await zipFiles(files);
+      downloadBlob(z, zipName);
+      setToast({ msg: `${zipName} (${packs.length} packs, ${files.length} imagens, ${kb(z.size)})` });
+      return true;
+    } catch (e) {
+      setToast({ msg: e instanceof Error ? e.message : 'Erro ao exportar', error: true });
+      return false;
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const exportVariations =(itemUid: string, ids: string[]) => runExport('batch', async () => {
     const files: { name: string; blob: Blob }[] = [];
     const used = new Set<string>();
     for (const id of ids) {
@@ -483,7 +526,7 @@ export default function App() {
     const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
     const mod = e.ctrlKey || e.metaKey;
     if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); savePack(); return; }
-    if (typing || saveDialog || bulkOpen) return;
+    if (typing || saveDialog || bulkOpen || massExportOpen) return;
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
     if (e.key === 'Escape') { setSelection([]); setMenuOpen(false); return; }
@@ -648,7 +691,13 @@ export default function App() {
 
       <SavedGallery packs={saved} assets={assetMap} sizeOverride={sizeOverride} background={prefs.background}
         currentId={pack.id} open={prefs.showSaved} onToggle={() => setPrefs({ ...prefs, showSaved: !prefs.showSaved })}
-        onOpen={openPack} onRefresh={refreshSaved} onBulkReplace={openBulk} />
+        onOpen={openPack} onRefresh={refreshSaved} onBulkReplace={openBulk}
+        onMassExport={() => setMassExportOpen(true)} />
+
+      {massExportOpen && (
+        <MassExportDialog packs={saved} assets={assetMap} sizeOverride={sizeOverride} background={prefs.background}
+          settings={massSettings} formatCount={massFormats.length} onExport={exportSavedPacks} onClose={() => setMassExportOpen(false)} />
+      )}
 
       {bulkOpen && (
         <BulkReplaceDialog packs={saved} assets={assetMap} allAssets={allAssets} sizeOverride={sizeOverride} background={prefs.background}
