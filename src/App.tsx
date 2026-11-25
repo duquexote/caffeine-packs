@@ -16,6 +16,7 @@ import { PackCanvas } from './components/PackCanvas';
 import { PackPanel } from './components/PackPanel';
 import { SaveDialog } from './components/SaveDialog';
 import { SavedGallery } from './components/SavedGallery';
+import { BulkReplaceDialog } from './components/BulkReplaceDialog';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -342,6 +343,47 @@ export default function App() {
     setSelection([]);
   };
   const refreshSaved = () => loadPacks().then(setSaved).catch(warn('Não foi possível atualizar os packs salvos'));
+
+  // ---- troca em massa nos packs salvos ----
+
+  const [bulkOpen, setBulkOpen] = useState(false);
+  /** Abre a troca em massa com a lista do time de agora. */
+  const openBulk = async () => {
+    try {
+      setSaved(await loadPacks());
+    } catch {
+      setToast({ msg: 'Não foi possível buscar os packs salvos; a troca usa a lista que já estava aberta', error: true });
+    }
+    setBulkOpen(true);
+  };
+  /** Grava packs alterados por fora do editor (troca em massa ou desfazer) e atualiza a lista e o pack aberto. */
+  const storeSaved = async (packs: Pack[]) => {
+    await savePacks(packs);
+    setSaved((s) => s.map((x) => packs.find((p) => p.id === x.id) ?? x));
+    // o pack aberto no editor, se estava sem alterações, passa a mostrar a versão nova
+    const mine = packs.find((p) => p.id === pack.id);
+    if (mine && isSaved) replace({ ...mine, savedAt: mine.updatedAt });
+  };
+  const applyBulk = async (changed: Pack[]) => {
+    const now = Date.now();
+    const out = changed.map((p) => ({ ...p, updatedAt: now, savedAt: now }));
+    try {
+      await storeSaved(out);
+      return out;
+    } catch (e) {
+      setToast({ msg: 'Não foi possível trocar nos packs salvos', error: true });
+      throw e;
+    }
+  };
+  const undoBulk = async (previous: Pack[]) => {
+    try {
+      await storeSaved(previous);
+      setToast({ msg: `Troca desfeita em ${previous.length} pack${previous.length > 1 ? 's' : ''}` });
+    } catch (e) {
+      setToast({ msg: 'Não foi possível desfazer a troca', error: true });
+      throw e;
+    }
+  };
   const deletePack = (p: Pack) => {
     if (!confirm(`Excluir o pack "${p.name}"? Ele some para todo o time.`)) return;
     deleteSavedPack(p.id)
@@ -441,7 +483,7 @@ export default function App() {
     const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
     const mod = e.ctrlKey || e.metaKey;
     if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); savePack(); return; }
-    if (typing || saveDialog) return;
+    if (typing || saveDialog || bulkOpen) return;
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
     if (e.key === 'Escape') { setSelection([]); setMenuOpen(false); return; }
@@ -606,7 +648,12 @@ export default function App() {
 
       <SavedGallery packs={saved} assets={assetMap} sizeOverride={sizeOverride} background={prefs.background}
         currentId={pack.id} open={prefs.showSaved} onToggle={() => setPrefs({ ...prefs, showSaved: !prefs.showSaved })}
-        onOpen={openPack} onRefresh={refreshSaved} />
+        onOpen={openPack} onRefresh={refreshSaved} onBulkReplace={openBulk} />
+
+      {bulkOpen && (
+        <BulkReplaceDialog packs={saved} assets={assetMap} allAssets={allAssets} sizeOverride={sizeOverride} background={prefs.background}
+          onApply={applyBulk} onUndo={undoBulk} onClose={() => setBulkOpen(false)} />
+      )}
 
       {saveDialog && (
         <SaveDialog pack={pack} kind={saveDialog.kind} remote={saveDialog.remote} takenNames={saved.map((s) => s.name)}

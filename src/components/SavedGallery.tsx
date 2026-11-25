@@ -14,6 +14,8 @@ interface Props {
   onToggle: () => void;
   onOpen: (p: Pack) => void;
   onRefresh: () => void;
+  /** troca em massa de um item nos packs salvos */
+  onBulkReplace: () => void;
 }
 
 const THUMB_W = 200;
@@ -37,6 +39,8 @@ export function SavedGallery(p: Props) {
           <>
             <input className="saved-search" type="search" placeholder="Buscar pack…" value={query} onChange={(e) => setQuery(e.target.value)} />
             <button className="link-btn" onClick={p.onRefresh} title="Buscar os packs que o time salvou agora">Atualizar</button>
+            <button className="link-btn" onClick={p.onBulkReplace} disabled={!p.packs.length}
+              title="Trocar um brinde (ou produto) por outro em vários packs salvos de uma vez">Trocar item em massa…</button>
           </>
         )}
       </header>
@@ -58,7 +62,7 @@ export function SavedGallery(p: Props) {
 }
 
 /** Miniatura do pack no formato Ecommerce (mesmo cálculo do canvas). */
-function Thumb(p: { pack: Pack; assets: Map<string, Asset>; sizeOverride: (a: Asset) => number; background: string }) {
+export function Thumb(p: { pack: Pack; assets: Map<string, Asset>; sizeOverride: (a: Asset) => number; background: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [tick, setTick] = useState(0);
   const f = FORMATS[0];
